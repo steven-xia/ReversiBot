@@ -8,7 +8,7 @@ import subprocess
 import time
 
 THREADS = 4
-EDAX_LOCATION = "/home/xteven/PycharmProjects/ArtificialIntelligence/ReversiBot/Edax/edax-4.4"
+EDAX_LOCATION = "./Edax/edax-4.4"
 EDAX_COMMAND = "{} -cassio -n-tasks {}".format(
     EDAX_LOCATION,
     THREADS

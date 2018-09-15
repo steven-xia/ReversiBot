@@ -28,7 +28,12 @@ import random
 sys.stdout.write(".")
 sys.stdout.flush()
 
-import pylab
+try:
+    PYLAB = True
+    import pylab
+except ImportError:
+    PYLAB = False
+    pylab = []
 
 sys.stdout.write(" Done\n")
 sys.stdout.flush()
@@ -100,10 +105,21 @@ if __name__ == "__main__":
         brain = neural_network.NeuralNetwork(input_layer_size=129,
                                              hidden_layer_sizes=HIDDEN_LAYERS,
                                              output_layer_size=1)
-        pylab.scatter(thingy, error)
-        pylab.pause(10 ** -3)
+
+        if PYLAB:
+            pylab.scatter(thingy, error)
+            pylab.pause(10 ** -3)
+        else:
+            pylab.append((ALPHA, error))
+
         ALPHA *= 2
         if ALPHA > 10:
             break
 
-    pylab.show()
+    if PYLAB:
+        pylab.show()
+    else:
+        print
+        print "Results: "
+        for alpha, error in pylab:
+            print "Alpha: {} :: Error: {}".format(alpha, error)

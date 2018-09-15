@@ -27,7 +27,11 @@ import evaluator
 sys.stdout.write(".")
 sys.stdout.flush()
 
-import pylab
+try:
+    GRAPH = True
+    import pylab
+except ImportError:
+    GRAPH = False
 
 sys.stdout.write(". Done\n")
 sys.stdout.flush()
@@ -47,7 +51,6 @@ TIME = map(lambda x: x, TIME)
 # TIME2 = map(lambda x: math.ceil(((x / 20) * (x - 30) + 12) / (1 + 2*SPEED_FACTOR)),
 #             range(651))
 STATS = False
-GRAPH = False
 
 MINIMUM = -2
 MAXIMUM = 2

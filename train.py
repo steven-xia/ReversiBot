@@ -24,7 +24,11 @@ import random
 sys.stdout.write(".")
 sys.stdout.flush()
 
-import pylab
+try:
+    GRAPH = True
+    import pylab
+except ImportError:
+    GRAPH = False
 
 sys.stdout.write(" Done\n")
 sys.stdout.flush()
@@ -103,7 +107,7 @@ if __name__ == "__main__":
                                 dropout_percentage=DROPOUT_PERCENTAGE,
                                 verbose=100)
 
-                if brain.iterations % GRAPH_FREQUENCY == 0:
+                if brain.iterations % GRAPH_FREQUENCY == 0 and GRAPH:
                     if "error" in globals():
                         pylab.scatter(brain.iterations, ITERATIONS_PER_BATCH * error / GRAPH_FREQUENCY, c="b")
                         pylab.pause(10 ** -3)
