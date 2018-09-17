@@ -49,7 +49,7 @@ class NeuralNetwork:
         :return: the initialized weights
         """
 
-        return numpy.random.randn(rows, columns) * numpy.sqrt(2.0 / columns)
+        return numpy.random.randn(rows, columns) * numpy.sqrt(rows / 2.0)
 
     @staticmethod
     def _relu(x):

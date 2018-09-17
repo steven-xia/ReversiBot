@@ -28,7 +28,7 @@ sys.stdout.write(".")
 sys.stdout.flush()
 
 try:
-    GRAPH = False
+    GRAPH = True
     import pylab
 except ImportError:
     GRAPH = False

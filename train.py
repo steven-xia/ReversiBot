@@ -32,7 +32,7 @@ except ImportError:
 sys.stdout.write(" Done\n")
 sys.stdout.flush()
 
-LOAD_INSTANCE = False
+LOAD_INSTANCE = True
 LOAD_FILE = "network1.pkl"
 SAVE_FILE = "network2.pkl"
 SECONDARY_SAVE_FILE = "network3.pkl"
@@ -44,7 +44,7 @@ HIDDEN_LAYERS = (80,)
 
 GRAPH_FREQUENCY = 5000
 
-ALPHA = 0.01
+ALPHA = 0.002
 DROPOUT_PERCENTAGE = 0.2
 
 

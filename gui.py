@@ -54,9 +54,9 @@ SPEED_FACTOR = 9 - LEVEL
 MINIMUM_DEPTH = int(2 + LEVEL / 4)
 
 if EVALUATOR == evaluator.evaluate:
-    TIME = [0.5] * 52 + [9999] * 20
+    TIME = [1] * 52 + [9999] * 20
 elif EVALUATOR == evaluator2.evaluate:
-    TIME = [0.2] * 52 + [9999] * 20
+    TIME = [0.3] * 52 + [9999] * 20
 else:
     raise Exception("NANI???")
 TIME = map(lambda x: LEVEL * x, TIME)
