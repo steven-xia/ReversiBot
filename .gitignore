@@ -1,2 +1,8 @@
 
 *.pyc
+
+network2\.pkl
+
+network1\.pkl
+
+network_backup\.pkl

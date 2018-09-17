@@ -18,7 +18,7 @@ import time
 # Uncomment these lines to suppress stdout.
 import os
 import sys
-sys.stdout = os.devnull
+sys.stdout = open(os.devnull, "w")
 
 INFINITY = 10 ** 6
 

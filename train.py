@@ -43,9 +43,10 @@ BATCH_SIZE = 10
 ITERATIONS_PER_BATCH = 1
 HIDDEN_LAYERS = (100, )
 
-GRAPH_FREQUENCY = 4000
+GRAPH_FREQUENCY = 50000
 
-ALPHA = 0.01
+# ALPHA = 0.01
+ALPHA = 0.005
 DROPOUT_PERCENTAGE = 0.2
 
 
@@ -94,8 +95,8 @@ if __name__ == "__main__":
             batches = [positions[n: n + BATCH_SIZE] for n in xrange(0, len(data), BATCH_SIZE)]
             for batch in batches:
                 # sys.stdout.write("Determining new batch inputs and outputs... ")
-                inputs = numpy.array(map(convert_to_input, batch), dtype=numpy.float128)
-                outputs = numpy.array([[data[position]] for position in batch], dtype=numpy.float128)
+                inputs = numpy.array(map(convert_to_input, batch), dtype=numpy.float64)
+                outputs = numpy.array([[data[position]] for position in batch], dtype=numpy.float64)
                 # sys.stdout.write("Done\n")
 
                 if "error" in globals():
