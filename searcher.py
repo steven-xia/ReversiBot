@@ -15,11 +15,6 @@ import reversi
 import copy
 import time
 
-# Uncomment these lines to suppress stdout.
-import os
-import sys
-sys.stdout = open(os.devnull, "w")
-
 INFINITY = 10 ** 6
 
 EMPTY = 2
@@ -60,7 +55,8 @@ class Searcher:
 
         self.caught_up = True
 
-    def expand_node(self, node):
+    @staticmethod
+    def expand_node(node):
         """
         Expands a particular node by depth one.
         :param node: anytree.Node() <- the node to expand

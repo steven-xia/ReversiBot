@@ -37,5 +37,5 @@ def evaluate(board):
 
     inputs = numpy.array([convert_to_input(board)])
     output = brain.think(inputs)
-    output = -100 * numpy.log(1 / output - 1)  # Convert to pieces.
+    output = -100 * numpy.log(1 / output - 1 + 10 ** -8)  # Convert to pieces.
     return output

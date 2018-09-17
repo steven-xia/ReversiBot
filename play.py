@@ -28,7 +28,7 @@ sys.stdout.write(".")
 sys.stdout.flush()
 
 try:
-    GRAPH = True
+    GRAPH = False
     import pylab
 except ImportError:
     GRAPH = False
@@ -37,7 +37,7 @@ sys.stdout.write(". Done\n")
 sys.stdout.flush()
 print
 
-FIRST_EVALUATOR = evaluator.evaluate
+FIRST_EVALUATOR = evaluator2.evaluate
 SECOND_EVALUATOR = evaluator2.evaluate
 
 LEVEL = 0
@@ -45,8 +45,9 @@ SPEED_FACTOR = 9 - LEVEL
 MINIMUM_DEPTH = int(2 + LEVEL / 3)
 TIME = map(lambda x: math.ceil(((x / 20) * (x - 30) + 12) / (1 + SPEED_FACTOR)),
            range(65))  # + [9999] * 20
-TIME = map(lambda x: x / 10.0, range(10, 0, -1)) + [0.1] * 42 + [9999] * 20
-TIME = map(lambda x: x, TIME)
+# TIME = map(lambda x: x / 10.0, range(10, 0, -1)) + [0.1] * 42 + [9999] * 20
+# TIME = map(lambda x: x, TIME)
+TIME = [2] * 52 + [9999] * 20
 # MINIMUM_DEPTH2 = int(1 + LEVEL / 3)
 # TIME2 = map(lambda x: math.ceil(((x / 20) * (x - 30) + 12) / (1 + 2*SPEED_FACTOR)),
 #             range(651))

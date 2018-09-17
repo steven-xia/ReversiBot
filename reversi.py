@@ -99,7 +99,9 @@ class Board:
                 self.legal_moves_notation = []
                 self._update_legal_moves()
 
-    def __deepcopy__(self, memodict={}):
+    def __deepcopy__(self, memodict=None):
+        if memodict is None:
+            memodict = {}
         pieces = [row[:] for row in self.pieces]
         new_instance = Board(copied=True)
         new_instance.pieces = pieces

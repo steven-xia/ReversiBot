@@ -6,7 +6,6 @@ file: train.py  -- version 0.2.1
 Description: Simple training algorithm using the 'neural_network.py' module.
 """
 
-
 import sys
 
 sys.stdout.write("Importing modules.")
@@ -33,7 +32,7 @@ except ImportError:
 sys.stdout.write(" Done\n")
 sys.stdout.flush()
 
-LOAD_INSTANCE = True
+LOAD_INSTANCE = False
 LOAD_FILE = "network1.pkl"
 SAVE_FILE = "network2.pkl"
 SECONDARY_SAVE_FILE = "network3.pkl"
@@ -41,12 +40,11 @@ DATA_FILE = "training_data.txt"
 
 BATCH_SIZE = 10
 ITERATIONS_PER_BATCH = 1
-HIDDEN_LAYERS = (100, )
+HIDDEN_LAYERS = (80,)
 
-GRAPH_FREQUENCY = 50000
+GRAPH_FREQUENCY = 5000
 
-# ALPHA = 0.01
-ALPHA = 0.005
+ALPHA = 0.01
 DROPOUT_PERCENTAGE = 0.2
 
 
@@ -77,6 +75,7 @@ if __name__ == "__main__":
         brain = neural_network.NeuralNetwork(input_layer_size=129,
                                              hidden_layer_sizes=HIDDEN_LAYERS,
                                              output_layer_size=1)
+        error = 0
 
     try:
         sys.stdout.write("Loading data file... ")
@@ -89,6 +88,11 @@ if __name__ == "__main__":
         exit(0)
 
     try:
+        if GRAPH:
+            pylab.xlabel("Iterations")
+            pylab.ylabel("Accuracy (%)")
+        print "Trained iterations: {}".format(brain.iteration)
+
         positions = data.keys()
         while True:
             random.shuffle(positions)
@@ -101,27 +105,26 @@ if __name__ == "__main__":
 
                 if "error" in globals():
                     error += brain.train(inputs, outputs, iterations=ITERATIONS_PER_BATCH, alpha=ALPHA,
-                                         dropout_percentage=0.2,
-                                         verbose=100)
+                                         dropout_percentage=0.2)
                 else:
                     brain.train(inputs, outputs, iterations=ITERATIONS_PER_BATCH, alpha=ALPHA,
-                                dropout_percentage=DROPOUT_PERCENTAGE,
-                                verbose=100)
+                                dropout_percentage=DROPOUT_PERCENTAGE)
 
-                if brain.iterations % GRAPH_FREQUENCY == 0 and GRAPH:
+                if brain.iteration % GRAPH_FREQUENCY == 0 and GRAPH:
                     if "error" in globals():
-                        pylab.scatter(brain.iterations, ITERATIONS_PER_BATCH * error / GRAPH_FREQUENCY, c="b")
+                        pylab.scatter(brain.iteration, error / GRAPH_FREQUENCY, c="b")
                         pylab.pause(10 ** -3)
                     error = 0
 
-                if brain.iterations % 10000 == 0:
+                if brain.iteration % 10000 == 0:
+                    print "Iteration: {}  -> ".format(brain.iteration),
                     sys.stdout.write("Saving network... ")
                     f = open(SAVE_FILE, "w")
                     cPickle.dump(brain, f, cPickle.HIGHEST_PROTOCOL)
                     f.close()
                     sys.stdout.write("Done\n")
 
-                if brain.iterations % 100000 == 0:
+                if brain.iteration % 100000 == 0:
                     sys.stdout.write("Saving network as secondary... ")
                     f = open(SECONDARY_SAVE_FILE, "w")
                     cPickle.dump(brain, f, cPickle.HIGHEST_PROTOCOL)
@@ -129,7 +132,7 @@ if __name__ == "__main__":
                     sys.stdout.write("Done\n")
 
     except KeyboardInterrupt:
-        brain.iterations = int(round(brain.iterations / 100.0)) * 100
+        brain.iteration = int(round(brain.iteration / 100.0)) * 100
 
         f = open(SAVE_FILE, "w")
         cPickle.dump(brain, f, cPickle.HIGHEST_PROTOCOL)

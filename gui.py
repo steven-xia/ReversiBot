@@ -56,7 +56,7 @@ MINIMUM_DEPTH = int(2 + LEVEL / 4)
 if EVALUATOR == evaluator.evaluate:
     TIME = [0.5] * 52 + [9999] * 20
 elif EVALUATOR == evaluator2.evaluate:
-    TIME = [0.05] * 52 + [9999] * 20
+    TIME = [0.2] * 52 + [9999] * 20
 else:
     raise Exception("NANI???")
 TIME = map(lambda x: LEVEL * x, TIME)
@@ -75,20 +75,25 @@ def callback(coordinate):
         return
 
     if coordinate in bot.board.legal_moves:
+        move = bot.board.convert_to_notation(coordinate)
+
         turn += 1
-        bot.move(bot.board.convert_to_notation(coordinate))
+        COMPUTER_MOVING = True
+
+        bot.move(move)
         update(bot.board.pieces)
 
-        COMPUTER_MOVING = True
         status_label.config(text="Thinking...")
         root.after(10, computer_move)
-
     elif bot.board.legal_moves == [None]:
+        move = None
+
         turn += 1
-        bot.move(None)
+        COMPUTER_MOVING = True
+
+        bot.move(move)
         update(bot.board.pieces)
 
-        COMPUTER_MOVING = True
         status_label.config(text="Thinking...")
         root.after(10, computer_move)
 
@@ -145,6 +150,12 @@ def update(pieces):
 
 if __name__ == "__main__":
 
+    # Suppress the useless output... :D
+    import os
+    import sys
+
+    sys.stdout = open(os.devnull, "w")
+
     bot = searcher.Searcher((EVALUATOR, EVALUATOR))
     bot.update_scores()
 
@@ -199,5 +210,12 @@ if __name__ == "__main__":
 
     root.update()
     root.resizable(width=False, height=False)
+
+    if PLAYER == "white":
+        turn += 1
+        COMPUTER_MOVING = True
+
+        status_label.config(text="Thinking...")
+        root.after(10, computer_move)
 
     root.mainloop()
