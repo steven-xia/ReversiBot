@@ -40,15 +40,16 @@ sys.stdout.flush()
 
 DATA_FILE = "training_data.txt"
 
-HIDDEN_LAYERS = (80,)
+HIDDEN_LAYERS = (80, 80)
 
 BATCH_SIZE = 100
 ITERATIONS_PER_BATCH = 1
 
 GRAPH_FREQUENCY = 999999
 VERBOSE_FREQUENCY = 100
-ALPHA = 0.0001
-DROPOUT_PERCENTAGE = 0.0
+ALPHA = 0.00512
+DROPOUT_PERCENTAGE = 0.5
+LAMBDA = 0.001
 
 
 def convert_to_input(pieces):
@@ -98,8 +99,8 @@ if __name__ == "__main__":
             inputs = numpy.array(map(convert_to_input, batch), dtype=numpy.float64)
             outputs = numpy.array([[data[position]] for position in batch], dtype=numpy.float64)
 
-            error += brain.train(inputs, outputs, iterations=ITERATIONS_PER_BATCH, alpha=ALPHA,
-                                 dropout_percentage=DROPOUT_PERCENTAGE, verbose=100)
+            error += brain.train(inputs, outputs, iterations=ITERATIONS_PER_BATCH, alpha=ALPHA, ladba=LAMBDA,
+                                 dropout_percentage=DROPOUT_PERCENTAGE)
 
         thingy += 1
         brain = neural_network.NeuralNetwork(input_layer_size=129,
@@ -112,8 +113,8 @@ if __name__ == "__main__":
         else:
             pylab.append((ALPHA, error))
 
-        ALPHA *= 2
-        if ALPHA > 1:
+        ALPHA /= 2
+        if ALPHA < 0.00001:
             break
 
     if PYLAB:

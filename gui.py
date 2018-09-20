@@ -18,6 +18,13 @@ import tkMessageBox
 import searcher
 import evaluator
 import evaluator2
+import evaluator_test
+
+evaluators = {
+    "ab": evaluator.evaluate, 
+    "nn": evaluator2.evaluate, 
+    "test": evaluator_test.evaluate
+}
 
 try:
     root = Tkinter.Tk()
@@ -25,6 +32,7 @@ try:
 
     LEVEL = 1
     PLAYER = "black"
+    EVALUATOR = evaluator2.evaluate
     for argument in sys.argv[1:]:
         attribute, value = map(lambda x: x.lower(), argument.split("="))
         if attribute == "player":
@@ -32,7 +40,7 @@ try:
                 PLAYER = value
             else:
                 message = "'{}' not a valid argument for 'player'; using " \
-                          "default: black".format(value)
+                          "default: 'black'".format(value)
                 tkMessageBox.showwarning(title="Warning", message=message)
         elif attribute == "level":
             value = int(value)
@@ -40,23 +48,30 @@ try:
                 LEVEL = value
             else:
                 message = "'{}' not a valid argument for 'level'; using " \
-                          "default: 1".format(value)
+                          "default: '1'".format(value)
+                tkMessageBox.showwarning(title="Warning", message=message)
+        elif attribute == "computer" or attribute == "comp":
+            if value in ("ab", "nn", "test"):
+                EVALUATOR = evaluators[value]
+            else:
+                message = "'{}' not a valid argument for 'computer'; using " \
+                          "default: 'nn'".format(value)
                 tkMessageBox.showwarning(title="Warning", message=message)
 except:
     PLAYER = "black"
     LEVEL = 1
+    EVALUATOR = evaluator2.evaluate
     message = "There's something wrong with your command; continuing with " \
               "default values."
     tkMessageBox.showerror(title="Error", message=message)
 
-EVALUATOR = evaluator2.evaluate
 SPEED_FACTOR = 9 - LEVEL
 MINIMUM_DEPTH = int(2 + LEVEL / 4)
 
 if EVALUATOR == evaluator.evaluate:
-    TIME = [1] * 52 + [9999] * 20
-elif EVALUATOR == evaluator2.evaluate:
-    TIME = [0.3] * 52 + [9999] * 20
+    TIME = [1] * 52 + [6] * 20
+elif EVALUATOR == evaluator2.evaluate or EVALUATOR == evaluator_test.evaluate:
+    TIME = [0.2] * 53 + [9999] * 20
 else:
     raise Exception("NANI???")
 TIME = map(lambda x: LEVEL * x, TIME)

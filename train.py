@@ -1,9 +1,9 @@
 #! /usr/bin/python
 
 """
-file: train.py  -- version 0.2.1
+file: train.py  -- version 0.2.2
 
-Description: Simple training algorithm using the 'neural_network.py' module.
+Description: Simple training 'algorithm' using the 'neural_network.py' module.
 """
 
 import sys
@@ -38,14 +38,16 @@ SAVE_FILE = "network2.pkl"
 SECONDARY_SAVE_FILE = "network3.pkl"
 DATA_FILE = "training_data.txt"
 
-BATCH_SIZE = 10
+BATCH_SIZE = 100
 ITERATIONS_PER_BATCH = 1
-HIDDEN_LAYERS = (80,)
+HIDDEN_LAYERS = (144, 89)
 
-GRAPH_FREQUENCY = 5000
+ALPHA = 0.00005
+BETA = 0.99
+DROPOUT_PERCENTAGE = 0.5
+LAMBDA = 10 ** -6
 
-ALPHA = 0.002
-DROPOUT_PERCENTAGE = 0.2
+VERBOSE_PER_EPOCH = 100
 
 
 def convert_to_input(pieces):
@@ -91,38 +93,30 @@ if __name__ == "__main__":
         if GRAPH:
             pylab.xlabel("Iterations")
             pylab.ylabel("Accuracy (%)")
-        print "Trained iterations: {}".format(brain.iteration)
-
         positions = data.keys()
+        GRAPH_FREQUENCY = len(data.keys()) / BATCH_SIZE + 1
+        iteration = 0
+
         while True:
             random.shuffle(positions)
             batches = [positions[n: n + BATCH_SIZE] for n in xrange(0, len(data), BATCH_SIZE)]
+            error = 0
+            
             for batch in batches:
-                # sys.stdout.write("Determining new batch inputs and outputs... ")
                 inputs = numpy.array(map(convert_to_input, batch), dtype=numpy.float64)
                 outputs = numpy.array([[data[position]] for position in batch], dtype=numpy.float64)
-                # sys.stdout.write("Done\n")
 
-                if "error" in globals():
-                    error += brain.train(inputs, outputs, iterations=ITERATIONS_PER_BATCH, alpha=ALPHA,
-                                         dropout_percentage=0.2)
-                else:
-                    brain.train(inputs, outputs, iterations=ITERATIONS_PER_BATCH, alpha=ALPHA,
-                                dropout_percentage=DROPOUT_PERCENTAGE)
+                error += brain.train(inputs, outputs, iterations=ITERATIONS_PER_BATCH, alpha=ALPHA, beta=BETA, ladba=LAMBDA,
+                                     dropout_percentage=0.2)
+                iteration += ITERATIONS_PER_BATCH
 
-                if brain.iteration % GRAPH_FREQUENCY == 0 and GRAPH:
-                    if "error" in globals():
-                        pylab.scatter(brain.iteration, error / GRAPH_FREQUENCY, c="b")
-                        pylab.pause(10 ** -3)
-                    error = 0
+                if iteration % (GRAPH_FREQUENCY / VERBOSE_PER_EPOCH) == 0:
+                    current_error = error / ((iteration - 1) % GRAPH_FREQUENCY)
+                    print "Iteration: {} :: Accuracy {}%".format(brain.iteration, round(current_error, 2))
 
-                if brain.iteration % 10000 == 0:
-                    print "Iteration: {}  -> ".format(brain.iteration),
-                    sys.stdout.write("Saving network... ")
-                    f = open(SAVE_FILE, "w")
-                    cPickle.dump(brain, f, cPickle.HIGHEST_PROTOCOL)
-                    f.close()
-                    sys.stdout.write("Done\n")
+                if iteration % GRAPH_FREQUENCY == 0 and GRAPH:
+                    pylab.scatter(brain.iteration, error / GRAPH_FREQUENCY, c="b")
+                    pylab.pause(10 ** -3)
 
                 if brain.iteration % 100000 == 0:
                     sys.stdout.write("Saving network as secondary... ")
@@ -130,6 +124,15 @@ if __name__ == "__main__":
                     cPickle.dump(brain, f, cPickle.HIGHEST_PROTOCOL)
                     f.close()
                     sys.stdout.write("Done\n")
+
+            print "Iteration: {}  -> ".format(brain.iteration),
+            sys.stdout.write("Saving network... ")
+            f = open(SAVE_FILE, "w")
+            cPickle.dump(brain, f, cPickle.HIGHEST_PROTOCOL)
+            f.close()
+            sys.stdout.write("Done\n")
+            
+            print "=" * 40
 
     except KeyboardInterrupt:
         brain.iteration = int(round(brain.iteration / 100.0)) * 100

@@ -27,11 +27,13 @@ def sigmoid(x):
 if __name__ == "__main__":
     try:
         sys.stdout.write("Loading data file... ")
+        sys.stdout.flush()
         data = datafile_manager.load_data(DATA_FILE)
         sys.stdout.write("Done\n")
     except IOError:
-        sys.stdout.write("file not found, starting with empty dataset.\n")
+        sys.stdout.write("data file not found, starting with empty dataset.\n")
         data = {}
+    sys.stdout.flush()
 
     try:
         while True:
@@ -79,9 +81,11 @@ if __name__ == "__main__":
             sys.stdout.write("Done\n")
 
     except KeyboardInterrupt:
-        sys.stdout.write("KeyboardInterrupt: saving data... ")
+        sys.stdout.write("\nKeyboardInterrupt: saving data... ")
+        sys.stdout.flush()
         datafile_manager.save_data(data, DATA_FILE)
         sys.stdout.write("Done\n")
+        sys.stdout.flush()
 
         sys.stdout.write("New dataset size: {}\n".format(len(data)))
 
@@ -89,8 +93,10 @@ if __name__ == "__main__":
         print "WARNING: UNEXPECTED ERROR:", error
 
         sys.stdout.write("Saving data... ")
+        sys.stdout.flush()
         datafile_manager.save_data(data, DATA_FILE)
         sys.stdout.write("Done\n")
+        sys.stdout.flush()
 
         sys.stdout.write("New dataset size: {}\n".format(len(data)))
 

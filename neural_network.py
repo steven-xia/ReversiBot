@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
 """
-file: neural_network.py  -- version 0.4.2
+file: neural_network.py  -- version 0.5
 Description: Implementation of a simple Artificial Neural Network!
 Features:
   - Flexible hidden layer sizes
@@ -9,6 +9,7 @@ Features:
   - Implemented [leaky] ReLU for the non-linearity
   - Implemented Hinton's dropout
   - Implemented He weights initializer
+  - Implemented momentum optimizer
 Possible uses:
   - a simple (or not so simple) classifier
   - a neural network teaching/experimental tool
@@ -49,7 +50,7 @@ class NeuralNetwork:
         :return: the initialized weights
         """
 
-        return numpy.random.randn(rows, columns) * numpy.sqrt(rows / 2.0)
+        return numpy.random.randn(rows, columns) * numpy.sqrt(2.0 / rows)
 
     @staticmethod
     def _relu(x):
@@ -79,6 +80,10 @@ class NeuralNetwork:
             if derivative:
                 return self._relu_to_derivative(x)
             return self._relu(x)
+    
+    @staticmethod  # I'm sorry... this is incorrect regularization loss... 
+    def regularization_loss(weights):
+        return numpy.sum(numpy.abs(weights), axis=1) ** 2
 
     def sdg(self, layers, layers_deltas, alpha):
         for layer_index in reversed(xrange(len(layers) - 1)):
@@ -88,12 +93,11 @@ class NeuralNetwork:
     def momentum(self, layers, layers_deltas, alpha, beta=0.5):
         for layer_index in reversed(xrange(len(layers) - 1)):
             gradient = layers[layer_index].T.dot(layers_deltas[layer_index])
-            gradient = beta * self.velocities[layer_index] + (1 - beta) * gradient
-            self.velocities[layer_index] = gradient
+            self.weights_list[layer_index] += alpha * self.velocities[layer_index]
             self.weights_list[layer_index] += alpha * gradient
+            self.velocities[layer_index] = beta * self.velocities[layer_index] + gradient
 
-    def train(self, training_inputs, training_outputs, iterations=1000, alpha=1.0, verbose=10 ** 6,
-              dropout_percentage=0.2):
+    def train(self, training_inputs, training_outputs, iterations=1000, alpha=1.0, beta=0.9, ladba=0.001, dropout_percentage=0.2):
         # Add a bias...
         training_inputs = numpy.c_[training_inputs, numpy.ones(len(training_inputs))]
         average_error = 0
@@ -117,20 +121,16 @@ class NeuralNetwork:
             layers_deltas.insert(0, output_layer_error * self.non_linearity(layers[-1], final_layer=True))
             for layer_index in reversed(xrange(1, len(layers) - 1)):
                 # Remainder errors dependant on last synapse weights...
-                layer_error = layers_deltas[0].dot(self.weights_list[layer_index].T)
+                layer_error = layers_deltas[0].dot((self.weights_list[layer_index].T)) + \
+                              ladba / len(training_inputs) ** 2 * self.regularization_loss(self.weights_list[layer_index])
                 layers_deltas.insert(0, layer_error * self.non_linearity(layers[layer_index]))
 
             # Apply the changes.
             self.iteration += 1
             # self.sdg(layers, layers_deltas, alpha)
-            self.momentum(layers, layers_deltas, alpha)
+            self.momentum(layers, layers_deltas, alpha, beta)
 
-            self.error_percentage = 100 * (1 - numpy.sum(numpy.abs(output_layer_error)) / len(training_outputs))
-            average_error += self.error_percentage
-
-            if self.iteration % verbose == 0:
-                print "Iteration {}:".format(self.iteration),
-                print "{}%".format(self.error_percentage)
+            average_error += 100 * (1 - numpy.sum(numpy.abs(output_layer_error)) / len(training_outputs))
 
         return average_error / iterations
 
