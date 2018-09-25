@@ -29,7 +29,12 @@ def convert_to_input(board):
                 converted += [0, 1]
             else:
                 converted += [0, 0]
-    converted.append(board.side)
+
+    if board.side == 0:
+        converted.append(0)
+    else:
+        converted.append(1)
+
     return converted
 
 

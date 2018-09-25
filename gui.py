@@ -19,11 +19,13 @@ import searcher
 import evaluator
 import evaluator2
 import evaluator_test
+import evaluator_hybrid
 
 evaluators = {
     "ab": evaluator.evaluate, 
     "nn": evaluator2.evaluate, 
-    "test": evaluator_test.evaluate
+    "test": evaluator_test.evaluate,
+    "hybrid": evaluator_hybrid.evaluate
 }
 
 try:
@@ -51,7 +53,7 @@ try:
                           "default: '1'".format(value)
                 tkMessageBox.showwarning(title="Warning", message=message)
         elif attribute == "computer" or attribute == "comp":
-            if value in ("ab", "nn", "test"):
+            if value in evaluators.keys():
                 EVALUATOR = evaluators[value]
             else:
                 message = "'{}' not a valid argument for 'computer'; using " \
@@ -70,7 +72,7 @@ MINIMUM_DEPTH = int(2 + LEVEL / 4)
 
 if EVALUATOR == evaluator.evaluate:
     TIME = [1] * 52 + [6] * 20
-elif EVALUATOR == evaluator2.evaluate or EVALUATOR == evaluator_test.evaluate:
+elif EVALUATOR in (evaluator2.evaluate, evaluator_test.evaluate, evaluator_hybrid.evaluate):
     TIME = [0.2] * 53 + [9999] * 20
 else:
     raise Exception("NANI???")
@@ -156,7 +158,7 @@ def update(pieces):
                 function_list[row_index * 8 + column_index](piece)
 
     global information_label, evaluation_label
-    information = "{} :: {} nodes".format(bot.fully_expanded,
+    information = "{} ply :: {} nodes".format(bot.fully_expanded,
                                           bot.number_nodes())
     information_label.config(text=information)
     evaluation = "Evaluation: {}".format(round(bot.game_tree.score / 100, 2))

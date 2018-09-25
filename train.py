@@ -12,6 +12,7 @@ sys.stdout.write("Importing modules.")
 sys.stdout.flush()
 import datafile_manager
 import neural_network
+import test
 
 sys.stdout.write(".")
 sys.stdout.flush()
@@ -28,6 +29,7 @@ try:
     import pylab
 except ImportError:
     GRAPH = False
+    pylab = None  # just to make my ide happy :P
 
 sys.stdout.write(" Done\n")
 sys.stdout.flush()
@@ -40,27 +42,35 @@ DATA_FILE = "training_data.txt"
 
 BATCH_SIZE = 100
 ITERATIONS_PER_BATCH = 1
-HIDDEN_LAYERS = (144, 89)
+HIDDEN_LAYERS = (80, )
 
 ALPHA = 0.00005
 BETA = 0.99
 DROPOUT_PERCENTAGE = 0.5
-LAMBDA = 10 ** -6
+LAMBDA = 10 ** -99
 
-VERBOSE_PER_EPOCH = 100
+VERBOSE_PER_EPOCH = 10
+TEST_PER_EPOCH = 1
+LOTS_GRAPH = True
+
+
+def printf(s):
+    sys.stdout.write(s)
+    sys.stdout.flush()
 
 
 def convert_to_input(pieces):
     converted = []
-    for piece in pieces[:-1]:
-        if piece == "X":
-            converted += [1, 0]
-        elif piece == "O":
-            converted += [0, 1]
-        else:
-            converted += [0, 0]
+    for row in pieces[:-1]:
+        for piece in row:
+            if piece == "X":
+                converted += [1, 0]
+            elif piece == "O":
+                converted += [0, 1]
+            else:
+                converted += [0, 0]
 
-    if pieces[:-1] == "X":
+    if pieces[-1] == "X":
         converted.append(0)
     else:
         converted.append(1)
@@ -87,6 +97,7 @@ if __name__ == "__main__":
         sys.stdout.flush()
     except IOError:
         print "Data file not found, quitting... "
+        data = {}  # just to make my IDE happy :P
         exit(0)
 
     try:
@@ -106,32 +117,52 @@ if __name__ == "__main__":
                 inputs = numpy.array(map(convert_to_input, batch), dtype=numpy.float64)
                 outputs = numpy.array([[data[position]] for position in batch], dtype=numpy.float64)
 
-                error += brain.train(inputs, outputs, iterations=ITERATIONS_PER_BATCH, alpha=ALPHA, beta=BETA, ladba=LAMBDA,
-                                     dropout_percentage=0.2)
+                error += brain.train(inputs, outputs, iterations=ITERATIONS_PER_BATCH, alpha=ALPHA, beta=BETA,
+                                     ladba=LAMBDA, dropout_percentage=DROPOUT_PERCENTAGE)
                 iteration += ITERATIONS_PER_BATCH
 
                 if iteration % (GRAPH_FREQUENCY / VERBOSE_PER_EPOCH) == 0:
                     current_error = error / ((iteration - 1) % GRAPH_FREQUENCY)
-                    print "Iteration: {} :: Accuracy {}%".format(brain.iteration, round(current_error, 2))
+                    if LOTS_GRAPH:
+                        pylab.scatter(brain.iteration, current_error, c="b")
+                        pylab.pause(10 ** -3)
+
+                    deviation = 0
+                    for weights in brain.weights_list:
+                        deviation += numpy.std(weights)
+
+                    print "Iteration: {} :: Accuracy: {}% :: Weights deviation: {}".format(
+                        brain.iteration, round(current_error, 2), deviation)
+
+                # if iteration % (GRAPH_FREQUENCY / TEST_PER_EPOCH) == 0:
+                #     printf("Testing network... ")
+                #     test_accuracy = test.test(brain)
+                #     printf("Done\n")
+                #     if LOTS_GRAPH:
+                #         pylab.scatter(brain.iteration, test_accuracy, c="r")
+                #         pylab.pause(10 ** -3)
+
+                #     print "Iteration: {} :: Test Accuracy: {}%".format(
+                #         brain.iteration, round(test_accuracy, 2))
 
                 if iteration % GRAPH_FREQUENCY == 0 and GRAPH:
                     pylab.scatter(brain.iteration, error / GRAPH_FREQUENCY, c="b")
                     pylab.pause(10 ** -3)
 
                 if brain.iteration % 100000 == 0:
-                    sys.stdout.write("Saving network as secondary... ")
+                    printf("Saving network as secondary... ")
                     f = open(SECONDARY_SAVE_FILE, "w")
                     cPickle.dump(brain, f, cPickle.HIGHEST_PROTOCOL)
                     f.close()
-                    sys.stdout.write("Done\n")
+                    printf("Done\n")
 
             print "Iteration: {}  -> ".format(brain.iteration),
-            sys.stdout.write("Saving network... ")
+            printf("Saving network... ")
             f = open(SAVE_FILE, "w")
             cPickle.dump(brain, f, cPickle.HIGHEST_PROTOCOL)
             f.close()
-            sys.stdout.write("Done\n")
-            
+            printf("Done\n")
+
             print "=" * 40
 
     except KeyboardInterrupt:

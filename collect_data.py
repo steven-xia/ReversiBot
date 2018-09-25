@@ -7,6 +7,21 @@ NOTE ON COPYRIGHT: I DO NO OWN THE 'EDAX' ENGINE AND ALL RIGHTS STAY WITH THE
 CREATOR OF THE ENGINE.
 
 NOTE: It has a stupid error thingy (It doesn't crash though). :P
+
+from reversi import Board
+from random import choice
+from collect_data import rotate as rot
+
+b = Board()
+b.display()
+
+def play():
+    b.move(choice(b.legal_moves_notation))
+    b.display()
+    
+def rotate():
+    rot(b.get_pieces())
+
 """
 
 import datafile_manager
@@ -17,7 +32,36 @@ import random
 import sys
 import math
 
+import numpy
+
 DATA_FILE = "training_data.txt"
+TEST_FILE = "testing_data.txt"
+
+DEPTH = 16
+
+# DATA_FILE, TEST_FILE = TEST_FILE, DATA_FILE
+
+
+CONVERSION_CHART = {
+    "X": 0,
+    "O": 1,
+    "-": 2
+}
+
+CONVERSION_CHART2 = {
+    0: "X",
+    1: "O",
+    2: "-"
+}
+
+
+def rotate(pieces):
+    converted = [[]] * 8
+    for row in xrange(8):
+        converted[row] = [int(CONVERSION_CHART[piece]) for piece in str(pieces[row * 8: row * 8 + 8])]
+    converted = numpy.rot90(numpy.array(converted))
+    converted = "".join(CONVERSION_CHART2[piece] for row in converted for piece in row)
+    return converted + pieces[-1]
 
 
 def sigmoid(x):
@@ -36,12 +80,22 @@ if __name__ == "__main__":
     sys.stdout.flush()
 
     try:
+        sys.stdout.write("Loading test file... ")
+        sys.stdout.flush()
+        test = datafile_manager.load_data(TEST_FILE)
+        sys.stdout.write("Done\n")
+    except IOError:
+        sys.stdout.write("test file not found, starting with empty dataset.\n")
+        test = {}
+    sys.stdout.flush()
+
+    try:
         while True:
             # sys.stdout.write("Initializing board... ")
             b = reversi.Board()
             # sys.stdout.write("Done\n")
 
-            while not b.is_over():
+            while not b.is_over() and len(b.available_positions) > 8:
                 # sys.stdout.write("Choosing random move... ")
                 random_move = random.choice(b.legal_moves_notation)
                 b.move(random_move)
@@ -50,31 +104,39 @@ if __name__ == "__main__":
                 position = b.get_pieces()
                 sys.stdout.write("New position: {}\n".format(position))
 
-                if position not in data.keys():
-                    sys.stdout.write("Position not in dataset, evaluating position... ")
-                    score = edax_wrapper.get_evaluation(position)
-                    if type(score) != float:
-                        sys.stdout.write("\nWARNING: That stupid error occured again... restarting Edax... ")
-                        edax_wrapper.terminate()
-                        edax_wrapper._initialize()
-                        sys.stdout.write("Done.\n")
-                        continue
+                sys.stdout.write("Evaluating position... ")
+                score = edax_wrapper.get_evaluation(position, depth=DEPTH)
+                sys.stdout.write("Score: {}, ".format(score))
+                score = sigmoid(score)
+                sys.stdout.write("Percentage: {}\n".format(score))
+                
+                if type(score) != float:
+                    sys.stdout.write("\nWARNING: That stupid error occured again... restarting Edax... ")
+                    edax_wrapper.terminate()
+                    edax_wrapper._initialize()
+                    sys.stdout.write("Done.\n")
+                    continue
 
-                    sys.stdout.write("Score: {}, ".format(score))
-                    score = sigmoid(score)
-                    sys.stdout.write("Percentage: {}\n".format(score))
+                augmented_positions = [position]
+                for _ in xrange(3):
+                    position = rotate(position)
+                    augmented_positions.append(position)
 
-                    data[position] = score
+                for position in augmented_positions:
+                    if position not in data.keys() + test.keys():
+                        sys.stdout.write("Adding position: {}\n".format(position))
+                        data[position] = score
 
-                    if len(data) % 10000 == 0:
-                        sys.stdout.write("{} entries, saving data... ".format(
-                            len(data)
-                        ))
-                        datafile_manager.save_data(data, DATA_FILE)
-                        sys.stdout.write("Done\n")
+                        if len(data) % 1000 == 0:
+                            sys.stdout.write("{} entries, saving data... ".format(
+                                len(data)
+                            ))
 
-                else:
-                    sys.stdout.write("Position already saved, continuing.\n")
+                            datafile_manager.save_data(data, DATA_FILE)
+                            sys.stdout.write("Done\n")
+
+                    else:
+                        sys.stdout.write("Position already saved, continuing.\n")
 
             sys.stdout.write("Resetting board... ")
             edax_wrapper.new_position()

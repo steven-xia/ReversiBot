@@ -6,13 +6,10 @@ Description: Implementation of a simple Artificial Neural Network!
 Features:
   - Flexible hidden layer sizes
   - Automatically adds a bias to all inputs
-  - Implemented [leaky] ReLU for the non-linearity
+  - Implemented ReLU for the non-linearity
   - Implemented Hinton's dropout
   - Implemented He weights initializer
   - Implemented momentum optimizer
-Possible uses:
-  - a simple (or not so simple) classifier
-  - a neural network teaching/experimental tool
 Dependencies:
   - numpy
 """
@@ -54,12 +51,12 @@ class NeuralNetwork:
 
     @staticmethod
     def _relu(x):
-        return numpy.maximum(0.01 * x, x)
+        return numpy.maximum(0., x)
 
     @staticmethod
     def _relu_to_derivative(x):
         dx = numpy.ones_like(x)
-        dx[x < 0] = 0.01
+        dx[x < 0] = 0.
         return dx
 
     @staticmethod
@@ -80,27 +77,24 @@ class NeuralNetwork:
             if derivative:
                 return self._relu_to_derivative(x)
             return self._relu(x)
-    
-    @staticmethod  # I'm sorry... this is incorrect regularization loss... 
-    def regularization_loss(weights):
-        return numpy.sum(numpy.abs(weights), axis=1) ** 2
 
     def sdg(self, layers, layers_deltas, alpha):
         for layer_index in reversed(xrange(len(layers) - 1)):
             gradient = layers[layer_index].T.dot(layers_deltas[layer_index])
             self.weights_list[layer_index] += alpha * gradient
 
-    def momentum(self, layers, layers_deltas, alpha, beta=0.5):
+    def momentum(self, layers, layers_deltas, alpha, beta=0.9, ladba=0.01):
         for layer_index in reversed(xrange(len(layers) - 1)):
             gradient = layers[layer_index].T.dot(layers_deltas[layer_index])
-            self.weights_list[layer_index] += alpha * self.velocities[layer_index]
+            gradient = beta * self.velocities[layer_index] + gradient
+            self.velocities[layer_index] = gradient
             self.weights_list[layer_index] += alpha * gradient
-            self.velocities[layer_index] = beta * self.velocities[layer_index] + gradient
 
-    def train(self, training_inputs, training_outputs, iterations=1000, alpha=1.0, beta=0.9, ladba=0.001, dropout_percentage=0.2):
+    def train(self, training_inputs, training_outputs, iterations=1000, alpha=1.0, beta=0.9, ladba=0.001,
+              dropout_percentage=0.2):
         # Add a bias...
         training_inputs = numpy.c_[training_inputs, numpy.ones(len(training_inputs))]
-        average_error = 0
+        total_error = 0
 
         for iteration in xrange(1, iterations + 1):
 
@@ -117,22 +111,40 @@ class NeuralNetwork:
 
             # Backward propagate.
             layers_deltas = []
+
+            temp1 = numpy.ones_like(training_outputs)
+            temp2 = numpy.ones_like(temp1)
+            temp1[training_outputs < 0.5] = -1
+            temp2[layers[-1] < 0.5] = -1
+            temp3 = temp1 * temp2
+
             output_layer_error = training_outputs - layers[-1]  # First layer is special...
+
+            temp = numpy.ones_like(output_layer_error)
+            temp[output_layer_error < 0] = -1
+
+            output_layer_error *= temp
+            output_layer_error[temp3 < 0] **= 0.5
+            output_layer_error *= temp
+
+            # if alpha == 0:
+            #     total_error += 100 * (1 - numpy.sum(numpy.abs(output_layer_error)) / len(training_outputs))
+            #     break
+
             layers_deltas.insert(0, output_layer_error * self.non_linearity(layers[-1], final_layer=True))
             for layer_index in reversed(xrange(1, len(layers) - 1)):
                 # Remainder errors dependant on last synapse weights...
-                layer_error = layers_deltas[0].dot((self.weights_list[layer_index].T)) + \
-                              ladba / len(training_inputs) ** 2 * self.regularization_loss(self.weights_list[layer_index])
+                layer_error = layers_deltas[0].dot(self.weights_list[layer_index].T)
                 layers_deltas.insert(0, layer_error * self.non_linearity(layers[layer_index]))
 
             # Apply the changes.
             self.iteration += 1
             # self.sdg(layers, layers_deltas, alpha)
-            self.momentum(layers, layers_deltas, alpha, beta)
+            self.momentum(layers, layers_deltas, alpha, beta, ladba)
 
-            average_error += 100 * (1 - numpy.sum(numpy.abs(output_layer_error)) / len(training_outputs))
+            total_error += 100 * (1 - numpy.sum(numpy.abs(output_layer_error)) / len(training_outputs))
 
-        return average_error / iterations
+        return total_error / iterations
 
     def think(self, input_questions):
 
