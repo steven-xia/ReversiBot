@@ -42,14 +42,14 @@ DATA_FILE = "training_data.txt"
 
 BATCH_SIZE = 100
 ITERATIONS_PER_BATCH = 1
-HIDDEN_LAYERS = (80, )
+HIDDEN_LAYERS = (200, )
 
-ALPHA = 0.00005
-BETA = 0.99
+ALPHA = 0.0002
+BETA = 0.95
 DROPOUT_PERCENTAGE = 0.5
-LAMBDA = 10 ** -99
+LAMBDA = 10 ** -9
 
-VERBOSE_PER_EPOCH = 10
+VERBOSE_PER_EPOCH = 50
 TEST_PER_EPOCH = 1
 LOTS_GRAPH = True
 
@@ -109,13 +109,17 @@ if __name__ == "__main__":
         iteration = 0
 
         while True:
+        
+            spacer = "=" * 15
+            print spacer + " EPOCH: {} ".format(round(float(brain.iteration) / (len(data) / BATCH_SIZE), 1) + 1) + spacer
+        
             random.shuffle(positions)
             batches = [positions[n: n + BATCH_SIZE] for n in xrange(0, len(data), BATCH_SIZE)]
             error = 0
             
             for batch in batches:
-                inputs = numpy.array(map(convert_to_input, batch), dtype=numpy.float64)
-                outputs = numpy.array([[data[position]] for position in batch], dtype=numpy.float64)
+                inputs = numpy.array(map(convert_to_input, batch), dtype=numpy.float32)
+                outputs = numpy.array([[data[position]] for position in batch], dtype=numpy.float32)
 
                 error += brain.train(inputs, outputs, iterations=ITERATIONS_PER_BATCH, alpha=ALPHA, beta=BETA,
                                      ladba=LAMBDA, dropout_percentage=DROPOUT_PERCENTAGE)
@@ -124,7 +128,7 @@ if __name__ == "__main__":
                 if iteration % (GRAPH_FREQUENCY / VERBOSE_PER_EPOCH) == 0:
                     current_error = error / ((iteration - 1) % GRAPH_FREQUENCY)
                     if LOTS_GRAPH:
-                        pylab.scatter(brain.iteration, current_error, c="b")
+                        pylab.scatter(brain.iteration, brain.error, c="b")
                         pylab.pause(10 ** -3)
 
                     deviation = 0
@@ -132,7 +136,7 @@ if __name__ == "__main__":
                         deviation += numpy.std(weights)
 
                     print "Iteration: {} :: Accuracy: {}% :: Weights deviation: {}".format(
-                        brain.iteration, round(current_error, 2), deviation)
+                        brain.iteration, round(brain.error, 2), round(deviation, 4))
 
                 # if iteration % (GRAPH_FREQUENCY / TEST_PER_EPOCH) == 0:
                 #     printf("Testing network... ")
@@ -146,7 +150,7 @@ if __name__ == "__main__":
                 #         brain.iteration, round(test_accuracy, 2))
 
                 if iteration % GRAPH_FREQUENCY == 0 and GRAPH:
-                    pylab.scatter(brain.iteration, error / GRAPH_FREQUENCY, c="b")
+                    pylab.scatter(brain.iteration, brain.error, c="b")
                     pylab.pause(10 ** -3)
 
                 if brain.iteration % 100000 == 0:
@@ -162,8 +166,6 @@ if __name__ == "__main__":
             cPickle.dump(brain, f, cPickle.HIGHEST_PROTOCOL)
             f.close()
             printf("Done\n")
-
-            print "=" * 40
 
     except KeyboardInterrupt:
         brain.iteration = int(round(brain.iteration / 100.0)) * 100

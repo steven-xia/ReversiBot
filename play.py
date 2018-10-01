@@ -40,7 +40,7 @@ sys.stdout.flush()
 print
 
 FIRST_EVALUATOR = evaluator2.evaluate
-SECOND_EVALUATOR = evaluator_test.evaluate
+SECOND_EVALUATOR = evaluator2.evaluate
 
 LEVEL = 0
 SPEED_FACTOR = 9 - LEVEL
@@ -59,8 +59,12 @@ STATS = False
 MINIMUM = -2
 MAXIMUM = 2
 
+ONE_AVERAGE = 0
+TWO_AVERAGE = 0
+
 if GRAPH:
     pylab.axhline(linewidth=0.1, color="k")
+    pylab.yscale("symlog")
 
 
 def computer_move_timed(engine):
@@ -71,6 +75,9 @@ def computer_move_timed(engine):
     #     engine.timed_expand(TIME[turn])
     # else:
     #     engine.timed_expand(TIME2[turn])
+
+    total_start_time = time.time()
+    total_start_nodes = engine.number_nodes()
 
     engine.timed_expand(TIME[turn])
 
@@ -104,7 +111,15 @@ def computer_move_timed(engine):
     print "Evaluating nodes...",
     sys.stdout.flush()
     engine.update_scores()
+    
+    total_nodes = engine.number_nodes() - total_start_nodes
+    total_efficiency = int(total_nodes / (time.time() - total_start_time))
     print "Done"
+    
+    print "Average speed {} nodes @ {} nodes/sec".format(
+        total_nodes,
+        total_efficiency
+    )
 
     print
     print "Bot legal moves:", engine.board.legal_moves_notation
@@ -114,13 +129,18 @@ def computer_move_timed(engine):
 
     if GRAPH:
         global MAXIMUM, MINIMUM
+        global ONE_AVERAGE, TWO_AVERAGE
 
         score = round(float(engine.game_tree.score) / 100, 2)
 
         if turn % 2 == 0:
-            pylab.scatter(turn, score, c="r")
+            TWO_AVERAGE = 0.5 * TWO_AVERAGE + 0.5 * score
+            pylab.scatter(turn, TWO_AVERAGE, c="r")
+            score = TWO_AVERAGE
         else:
-            pylab.scatter(turn, score, c="b")
+            ONE_AVERAGE = 0.5 * ONE_AVERAGE + 0.5 * score
+            pylab.scatter(turn, ONE_AVERAGE, c="b")
+            score = ONE_AVERAGE
 
         MINIMUM = min(score - 0.5, MINIMUM)
         MAXIMUM = max(score + 0.5, MAXIMUM)

@@ -46,7 +46,7 @@ try:
                 tkMessageBox.showwarning(title="Warning", message=message)
         elif attribute == "level":
             value = int(value)
-            if value in range(11):
+            if value in range(21):
                 LEVEL = value
             else:
                 message = "'{}' not a valid argument for 'level'; using " \

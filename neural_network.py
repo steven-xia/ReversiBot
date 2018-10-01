@@ -37,6 +37,7 @@ class NeuralNetwork:
 
         self.iteration = 0
         self.velocities = [numpy.zeros_like(weights) for weights in self.weights_list]
+        self.error = None
 
     @staticmethod
     def initialize_weights(rows, columns):
@@ -143,6 +144,12 @@ class NeuralNetwork:
             self.momentum(layers, layers_deltas, alpha, beta, ladba)
 
             total_error += 100 * (1 - numpy.sum(numpy.abs(output_layer_error)) / len(training_outputs))
+
+        average_error = total_error / iterations
+        if self.error is None:
+            self.error = average_error
+        else:
+            self.error = 0.999 * self.error + 0.001 * average_error
 
         return total_error / iterations
 
