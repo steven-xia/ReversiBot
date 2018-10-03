@@ -42,16 +42,18 @@ DATA_FILE = "training_data.txt"
 
 BATCH_SIZE = 100
 ITERATIONS_PER_BATCH = 1
-HIDDEN_LAYERS = (200, )
+HIDDEN_LAYERS = (256, 256, 64)
 
-ALPHA = 0.0002
-BETA = 0.95
+ALPHA = 0.001
+BETA = 0.5
 DROPOUT_PERCENTAGE = 0.5
 LAMBDA = 10 ** -9
 
 VERBOSE_PER_EPOCH = 50
-TEST_PER_EPOCH = 1
 LOTS_GRAPH = True
+
+TEST = False
+TEST_PER_EPOCH = 1
 
 
 def printf(s):
@@ -112,6 +114,7 @@ if __name__ == "__main__":
         
             spacer = "=" * 15
             print spacer + " EPOCH: {} ".format(round(float(brain.iteration) / (len(data) / BATCH_SIZE), 1) + 1) + spacer
+            print "Last error:", brain.error
         
             random.shuffle(positions)
             batches = [positions[n: n + BATCH_SIZE] for n in xrange(0, len(data), BATCH_SIZE)]
@@ -138,16 +141,16 @@ if __name__ == "__main__":
                     print "Iteration: {} :: Accuracy: {}% :: Weights deviation: {}".format(
                         brain.iteration, round(brain.error, 2), round(deviation, 4))
 
-                # if iteration % (GRAPH_FREQUENCY / TEST_PER_EPOCH) == 0:
-                #     printf("Testing network... ")
-                #     test_accuracy = test.test(brain)
-                #     printf("Done\n")
-                #     if LOTS_GRAPH:
-                #         pylab.scatter(brain.iteration, test_accuracy, c="r")
-                #         pylab.pause(10 ** -3)
+                if iteration % (GRAPH_FREQUENCY / TEST_PER_EPOCH) == 0 and TEST:
+                    printf("Testing network... ")
+                    test_accuracy = test.test(brain)
+                    printf("Done\n")
+                    if LOTS_GRAPH:
+                        pylab.scatter(brain.iteration, test_accuracy, c="r")
+                        pylab.pause(10 ** -3)
 
-                #     print "Iteration: {} :: Test Accuracy: {}%".format(
-                #         brain.iteration, round(test_accuracy, 2))
+                    print "Iteration: {} :: Test Accuracy: {}%".format(
+                        brain.iteration, round(test_accuracy, 2))
 
                 if iteration % GRAPH_FREQUENCY == 0 and GRAPH:
                     pylab.scatter(brain.iteration, brain.error, c="b")

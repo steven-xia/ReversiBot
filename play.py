@@ -25,6 +25,7 @@ import evaluator
 import evaluator2
 import evaluator_test
 import evaluator_hybrid
+import evaluator_ensemble
 
 sys.stdout.write(".")
 sys.stdout.flush()
@@ -40,7 +41,7 @@ sys.stdout.flush()
 print
 
 FIRST_EVALUATOR = evaluator2.evaluate
-SECOND_EVALUATOR = evaluator2.evaluate
+SECOND_EVALUATOR = evaluator_test.evaluate
 
 LEVEL = 0
 SPEED_FACTOR = 9 - LEVEL
@@ -59,12 +60,13 @@ STATS = False
 MINIMUM = -2
 MAXIMUM = 2
 
+SMOOTH_FACTOR = 0
 ONE_AVERAGE = 0
 TWO_AVERAGE = 0
 
 if GRAPH:
     pylab.axhline(linewidth=0.1, color="k")
-    pylab.yscale("symlog")
+    # pylab.yscale("symlog")
 
 
 def computer_move_timed(engine):
@@ -134,12 +136,12 @@ def computer_move_timed(engine):
         score = round(float(engine.game_tree.score) / 100, 2)
 
         if turn % 2 == 0:
-            TWO_AVERAGE = 0.5 * TWO_AVERAGE + 0.5 * score
-            pylab.scatter(turn, TWO_AVERAGE, c="r")
+            TWO_AVERAGE = SMOOTH_FACTOR * TWO_AVERAGE + (1 - SMOOTH_FACTOR) * score
+            pylab.scatter(turn, round(TWO_AVERAGE, 1), c="r")
             score = TWO_AVERAGE
         else:
-            ONE_AVERAGE = 0.5 * ONE_AVERAGE + 0.5 * score
-            pylab.scatter(turn, ONE_AVERAGE, c="b")
+            ONE_AVERAGE = SMOOTH_FACTOR * ONE_AVERAGE + (1 - SMOOTH_FACTOR) * score
+            pylab.scatter(turn, round(ONE_AVERAGE, 1), c="b")
             score = ONE_AVERAGE
 
         MINIMUM = min(score - 0.5, MINIMUM)
