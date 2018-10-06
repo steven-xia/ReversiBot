@@ -34,7 +34,7 @@ except ImportError:
 sys.stdout.write(" Done\n")
 sys.stdout.flush()
 
-LOAD_INSTANCE = True
+LOAD_INSTANCE = False
 LOAD_FILE = "network1.pkl"
 SAVE_FILE = "network2.pkl"
 SECONDARY_SAVE_FILE = "network3.pkl"
@@ -42,11 +42,11 @@ DATA_FILE = "training_data.txt"
 
 BATCH_SIZE = 100
 ITERATIONS_PER_BATCH = 1
-HIDDEN_LAYERS = (256, 256, 64)
+HIDDEN_LAYERS = (512, 512)
 
-ALPHA = 0.001
+ALPHA = 0.01
 BETA = 0.5
-DROPOUT_PERCENTAGE = 0.5
+DROPOUT_PERCENTAGE = 0.7
 LAMBDA = 10 ** -9
 
 VERBOSE_PER_EPOCH = 50

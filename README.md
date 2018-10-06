@@ -50,8 +50,6 @@ python setup.py build_ext --inplace
 
 and run it as you would normally. 
 
-Note: I've found that running it with [PyPy](https://pypy.org/) results in a good ~2.5x speedup for playing games.
-
 ### Other notes
 
 Data collection is done with the following command. The number of threads can be set in `edax_wrapper.py` under the 

@@ -9,6 +9,7 @@ import cPickle
 import numpy
 
 from math import log
+import random
 
 INSTANCE_FILE = "network.pkl"
 LOOK_NICE = False
@@ -16,6 +17,8 @@ LOOK_NICE = False
 f = open(INSTANCE_FILE, "r")
 brain = cPickle.load(f)
 f.close()
+
+NOISE_FACTOR = 1
 
 
 def convert_to_input(board):
@@ -62,5 +65,6 @@ def evaluate(board):
     inputs = numpy.array([convert_to_input(board)])
     output = brain.think(inputs)
     output = -100 * numpy.log(1 / output - 1 + 10 ** -8)  # Convert to pieces.
-    return look_nice_factor * output
+    noise = 1 + (NOISE_FACTOR / 100.0) * (2 * random.random() - 1)
+    return noise * look_nice_factor * output
 

@@ -5,6 +5,9 @@ Description: Reversi module for easier management of... everything related to
 the game :D. This is quite slow and non-optimized (although I tried...) .
 """
 
+import numpy
+
+
 EMPTY = 2
 BLACK = 0
 WHITE = 1
@@ -29,7 +32,7 @@ CONVERSION_CHART = {
 
 STARTING_LEGAL_MOVES = [(2, 3), (3, 2), (4, 5), (5, 4)]
 STARTING_LEGAL_MOVES_NOTATION = ['d3', 'c4', 'f5', 'e6']
-START_POSITION = [
+START_POSITION = numpy.array([
     [2, 2, 2, 2, 2, 2, 2, 2],
     [2, 2, 2, 2, 2, 2, 2, 2],
     [2, 2, 2, 2, 2, 2, 2, 2],
@@ -38,7 +41,7 @@ START_POSITION = [
     [2, 2, 2, 2, 2, 2, 2, 2],
     [2, 2, 2, 2, 2, 2, 2, 2],
     [2, 2, 2, 2, 2, 2, 2, 2],
-]
+])
 
 ALLOWED_COORDINATES = frozenset([(x, y) for x in xrange(8) for y in xrange(8)])
 ALLOWED_COORDINATES = {x: False for x in ALLOWED_COORDINATES}

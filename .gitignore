@@ -18,3 +18,11 @@ network0\.pkl
 network_stable\.pkl
 
 training_data_backup\.txt
+
+build/temp\.linux-x86_64-2\.7/reversi\.o
+
+test\.py
+
+testing_data\.txt
+
+testing_data_backup\.txt
