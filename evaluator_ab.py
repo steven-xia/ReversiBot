@@ -1,5 +1,5 @@
 """
-File: evaluator.py -- version 0.2.1
+File: evaluator_ab.py -- version 0.2.1
 
 Description: Evaluation module for evaluating a reversi board state... This was
 copied from an older program.

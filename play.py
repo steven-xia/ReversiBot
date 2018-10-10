@@ -21,14 +21,18 @@ import time
 # import math
 
 import searcher
-import evaluator
-import evaluator2
+import evaluator_ab
+import evaluator_nn
 import evaluator_test
 import evaluator_hybrid
 import evaluator_ensemble
 
+import searcher2 as searcher
+
 sys.stdout.write(".")
 sys.stdout.flush()
+
+STATS = False
 
 try:
     GRAPH = True
@@ -40,27 +44,28 @@ sys.stdout.write(". Done\n")
 sys.stdout.flush()
 print
 
-FIRST_EVALUATOR = evaluator2.evaluate
+FIRST_EVALUATOR = evaluator_nn.evaluate
 SECOND_EVALUATOR = evaluator_test.evaluate
 
 LEVEL = 0
 SPEED_FACTOR = 9 - LEVEL
-MINIMUM_DEPTH = int(2 + LEVEL / 3)
+# MINIMUM_DEPTH = int(2 + LEVEL / 3)
+MINIMUM_DEPTH = 2
 # TIME = map(lambda x: math.ceil(((x / 20) * (x - 30) + 12) / (1 + SPEED_FACTOR)),
 #            range(65))  # + [9999] * 20
 # TIME = map(lambda x: x / 10.0, range(10, 0, -1)) + [0.1] * 42 + [9999] * 20
 # TIME = map(lambda x: x, TIME)
-TIME = [0] * 52 + [9999] * 20
+# TIME = [0] * 52 + [9999] * 20
+TIME = [0] * 999
 # TIME = [0, 0.5] * 26 + [9999] * 20
 # MINIMUM_DEPTH2 = int(1 + LEVEL / 3)
 # TIME2 = map(lambda x: math.ceil(((x / 20) * (x - 30) + 12) / (1 + 2*SPEED_FACTOR)),
 #             range(651))
-STATS = False
 
 MINIMUM = -2
 MAXIMUM = 2
 
-SMOOTH_FACTOR = 0
+SMOOTH_FACTOR = 0.5
 ONE_AVERAGE = 0
 TWO_AVERAGE = 0
 
@@ -209,7 +214,7 @@ if __name__ == "__main__":
         import cProfile
         import pstats
 
-        bot = searcher.Searcher(evaluator.evaluate)
+        bot = searcher.Searcher(evaluator_ab.evaluate)
         cProfile.run('main()', 'main.profile')
         stats = pstats.Stats('main.profile')
         stats.strip_dirs().sort_stats('time').print_stats()

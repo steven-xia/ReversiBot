@@ -33,7 +33,6 @@ START_POSITION = [
     [2, 2, 2, 2, 2, 2, 2, 2],
 ]
 
-
 TRANSPOSITION_TABLE = {}
 
 
@@ -55,9 +54,49 @@ class Searcher:
 
         self.evaluators = evaluators
         self.board = reversi.Board(pieces, side)
-        self.game_tree = anytree.Node(self.board)
+        self.game_tree = anytree.Node(self.board, expand=True)
 
         self.caught_up = True
+
+    def cut(self, node=None):
+        """
+        Prune the treee...
+        :param node: the node to cut from
+        :return: None
+        """
+
+        if node is None:
+            node = self.game_tree
+
+        if len(node.children) <= 2:
+            print "Cut: ", len(node.children), "/", len(node.children)
+            return
+
+        try:
+            maximum = max(node.children, key=lambda n: n.score).score
+            minimum = min(node.children, key=lambda n: n.score).score
+        except AttributeError:
+            return
+
+        if self.board.side + node.depth == BLACK:
+            score_range = maximum - minimum  # 0 -> x
+            score_cutoff = 0.5 * score_range + minimum
+            cutoff_function = lambda s: s >= score_cutoff
+            foo = min
+        else:
+            score_range = minimum - maximum  # x -> 0
+            score_cutoff = 0.5 * score_range + maximum
+            cutoff_function = lambda s: s <= score_cutoff
+            foo = max
+
+        good = filter(lambda n: cutoff_function(n.score), list(node.children))
+        bad = filter(lambda n: not cutoff_function(n.score), list(node.children))
+        while len(good) < 2:
+            good.append(foo(bad, key=lambda n: n.score))
+
+        print "Cut: ", len(good), "/", len(node.children)
+
+        node.children = good
 
     @staticmethod
     def expand_node(node):
@@ -70,7 +109,7 @@ class Searcher:
         for move in node.name.legal_moves_notation:
             new_board = copy.deepcopy(node.name)
             new_board.move(move)
-            anytree.Node(new_board, parent=node, move=move)
+            anytree.Node(new_board, parent=node, move=move, expand=True)
 
     def expand(self, t=INFINITY):
         """
@@ -93,7 +132,7 @@ class Searcher:
                 break
             if time.time() > stop_time:
                 return
-            if node.is_leaf:
+            if node.expand and node.is_leaf:
                 self.expand_node(node)
 
         self.caught_up = True
@@ -111,9 +150,13 @@ class Searcher:
             if self.fully_expanded > 64 - self.pieces + 1:
                 break
 
+            if self.fully_expanded > 2:
+                self.cut()
+
             starting_nodes = self.number_nodes()
             time1 = time.time()
             self.expand(end_time - time.time())
+            self.update_scores()
             time2 = time.time()
             ending_nodes = self.number_nodes()
 
@@ -150,6 +193,8 @@ class Searcher:
                 value = max(value, child.score)
                 alpha = max(alpha, value)
                 if alpha > beta:
+                    for child in node.children:
+                        child.score = alpha
                     break
             node.score = value
         else:
@@ -159,6 +204,8 @@ class Searcher:
                 value = min(value, child.score)
                 beta = min(beta, value)
                 if alpha > beta:
+                    for child in node.children:
+                        child.score = alpha
                     break
             node.score = value
 
@@ -176,11 +223,11 @@ class Searcher:
 
         if self.board.side == BLACK:
             self.game_tree.score = max(
-                self.game_tree.children, key=lambda n: n.score
+                self.game_tree.children, key=lambda n: n.score if n.height == self.fully_expanded else -INFINITY
             ).score
         else:
             self.game_tree.score = min(
-                self.game_tree.children, key=lambda n: n.score
+                self.game_tree.children, key=lambda n: n.score if n.height == self.fully_expanded else INFINITY
             ).score
 
     def best_move(self):
@@ -217,6 +264,9 @@ class Searcher:
         for board in TRANSPOSITION_TABLE.keys():
             if len(board.available_positions) >= 64 - self.pieces:
                 del TRANSPOSITION_TABLE[board]
+
+        for node in anytree.PreOrderIter(self.game_tree):
+            node.expand = True
 
     def number_nodes(self):
         return len(list(anytree.PreOrderIter(self.game_tree)))

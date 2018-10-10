@@ -11,21 +11,25 @@ Dependencies:
 """
 
 import sys
+import random
 
 import Tkinter
 import tkMessageBox
 
 import searcher
-import evaluator
-import evaluator2
+import searcher2 as searcher
+import evaluator_ab
+import evaluator_nn
 import evaluator_test
 import evaluator_hybrid
+import evaluator_ensemble
 
 evaluators = {
-    "ab": evaluator.evaluate, 
-    "nn": evaluator2.evaluate, 
+    "ab": evaluator_ab.evaluate,
+    "nn": evaluator_nn.evaluate,
     "test": evaluator_test.evaluate,
-    "hybrid": evaluator_hybrid.evaluate
+    "hybrid": evaluator_hybrid.evaluate,
+    "ensemble": evaluator_ensemble.evaluate
 }
 
 try:
@@ -34,7 +38,7 @@ try:
 
     LEVEL = 1
     PLAYER = "black"
-    EVALUATOR = evaluator2.evaluate
+    EVALUATOR = evaluator_nn.evaluate
     for argument in sys.argv[1:]:
         attribute, value = map(lambda x: x.lower(), argument.split("="))
         if attribute == "player":
@@ -46,7 +50,7 @@ try:
                 tkMessageBox.showwarning(title="Warning", message=message)
         elif attribute == "level":
             value = int(value)
-            if value in range(21):
+            if value in range(301):
                 LEVEL = value
             else:
                 message = "'{}' not a valid argument for 'level'; using " \
@@ -62,7 +66,7 @@ try:
 except:
     PLAYER = "black"
     LEVEL = 1
-    EVALUATOR = evaluator2.evaluate
+    EVALUATOR = evaluator_nn.evaluate
     message = "There's something wrong with your command; continuing with " \
               "default values."
     tkMessageBox.showerror(title="Error", message=message)
@@ -70,10 +74,10 @@ except:
 SPEED_FACTOR = 9 - LEVEL
 MINIMUM_DEPTH = int(2 + LEVEL / 4)
 
-if EVALUATOR == evaluator.evaluate:
-    TIME = [1] * 52 + [6] * 20
-elif EVALUATOR in (evaluator2.evaluate, evaluator_test.evaluate, evaluator_hybrid.evaluate):
-    TIME = [0.2] * 53 + [9999] * 20
+if EVALUATOR == evaluator_ab.evaluate:
+    TIME = [1] * 64
+elif EVALUATOR in (evaluator_nn.evaluate, evaluator_test.evaluate, evaluator_hybrid.evaluate):
+    TIME = [0.2] * 64
 else:
     raise Exception("NANI???")
 TIME = map(lambda x: LEVEL * x, TIME)
@@ -83,6 +87,16 @@ turn = 0
 COLORS = ("black", "white", "green4", "chartreuse3")
 HIGHLIGHT_COLORS = ("gray8", "gray96", "green4", "chartreuse2")
 COMPUTER_MOVING = False
+
+
+def get_insult(score):
+    insults = [
+        "Guess what? You suck!", 
+        "Git good, kiddo...", 
+        
+    ]
+    
+    return random.choice(insults) + "\nScore: {}".format(score)
 
 
 def callback(coordinate):
@@ -135,12 +149,13 @@ def computer_move():
             message = "Hey... you won...\nScore: {}".format(score)
             tkMessageBox.showinfo(title="You Win!", message=message)
         else:
-            message = "Guess what? You suck!\nScore: {}".format(score)
+            message = get_insult(score)
             tkMessageBox.showinfo(title="You Lost!", message=message)
         status_label.config(text="Score: {}".format(bot.board.score()))
     elif bot.board.legal_moves == [None]:
         tkMessageBox.showinfo(title="Get rekt!", message="You have no moves... ")
         bot.move(None)
+        update(bot.board.pieces)
         root.after(10, computer_move)
     else:
         status_label.config(text="Your turn.")

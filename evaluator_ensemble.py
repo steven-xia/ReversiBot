@@ -1,5 +1,5 @@
 """
-File: evaluator2.py -- version 0.1.1
+File: evaluator_nn.py -- version 0.1.1
 
 Description: This evaluation module uses a pre-trained neural network.
 """
