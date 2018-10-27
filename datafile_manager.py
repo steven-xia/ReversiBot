@@ -1,5 +1,5 @@
 """
-File: datafile_manager.py  -- version 0.1
+File: datafile_manager.py
 
 Description: Helper module for interaction with the testing and training data
 files. Not to be confused with weightsfile_manager.py

@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
 """
-file: neural_network.py  -- version 0.5
+file: neural_network.py
 Description: Implementation of a simple Artificial Neural Network!
 Features:
   - Flexible hidden layer sizes
@@ -147,7 +147,7 @@ class NeuralNetwork:
 
         average_error = total_error / iterations
         if self.error is None:
-            self.error = average_error
+            self.error = 0
         else:
             self.error = 0.999 * self.error + 0.001 * average_error
 

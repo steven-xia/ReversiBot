@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
 """
-file: train.py  -- version 0.2.2
+file: train.py
 
 Description: Simple training 'algorithm' using the 'neural_network.py' module.
 """
@@ -29,27 +29,26 @@ try:
     import pylab
 except ImportError:
     GRAPH = False
-    pylab = None  # just to make my ide happy :P
 
 sys.stdout.write(" Done\n")
 sys.stdout.flush()
 
 LOAD_INSTANCE = False
-LOAD_FILE = "network1.pkl"
-SAVE_FILE = "network2.pkl"
-SECONDARY_SAVE_FILE = "network3.pkl"
+LOAD_FILE = "network_save.pkl"
+SAVE_FILE = "network_temp.pkl"
+SECONDARY_SAVE_FILE = "network_longtemp.pkl"
 DATA_FILE = "training_data.txt"
 
 BATCH_SIZE = 100
 ITERATIONS_PER_BATCH = 1
-HIDDEN_LAYERS = (256, 256, 256)
+HIDDEN_LAYERS = (256, 256, 64)
 
-ALPHA = 0.001
-BETA = 0.5
-DROPOUT_PERCENTAGE = 0.5
-LAMBDA = 10 ** -9
+ALPHA = 0.0004
+BETA = 0.9
+DROPOUT_PERCENTAGE = 0.7
+LAMBDA = 10 ** -3
 
-VERBOSE_PER_EPOCH = 50
+VERBOSE_PER_EPOCH = 100
 LOTS_GRAPH = True
 
 TEST = False
@@ -92,14 +91,11 @@ if __name__ == "__main__":
         error = 0
 
     try:
-        sys.stdout.write("Loading data file... ")
-        sys.stdout.flush()
+        printf("Loading data file... ")
         data = datafile_manager.load_data(DATA_FILE)
-        sys.stdout.write("Done\n")
-        sys.stdout.flush()
+        printf("Done\n")
     except IOError:
-        print "Data file not found, quitting... "
-        data = {}  # just to make my IDE happy :P
+        printf("Data file not found, quitting... \n")
         exit(0)
 
     try:
@@ -111,21 +107,30 @@ if __name__ == "__main__":
         iteration = 0
 
         while True:
-        
-            spacer = "=" * 15
-            print spacer + " EPOCH: {} ".format(round(float(brain.iteration) / (len(data) / BATCH_SIZE), 1) + 1) + spacer
-            print "Last error:", brain.error
-        
-            random.shuffle(positions)
-            batches = [positions[n: n + BATCH_SIZE] for n in xrange(0, len(data), BATCH_SIZE)]
-            error = 0
-            
-            for batch in batches:
-                inputs = numpy.array(map(convert_to_input, batch), dtype=numpy.float32)
-                outputs = numpy.array([[data[position]] for position in batch], dtype=numpy.float32)
 
-                error += brain.train(inputs, outputs, iterations=ITERATIONS_PER_BATCH, alpha=ALPHA, beta=BETA,
-                                     ladba=LAMBDA, dropout_percentage=DROPOUT_PERCENTAGE)
+            spacer = "=" * 15
+            printf(spacer + " EPOCH: {} \n".format(
+                round(float(brain.iteration) / (len(data) / BATCH_SIZE), 1) + 1)
+                   + spacer)
+            printf("Last error: {}\n".format(brain.error))
+
+            random.shuffle(positions)
+            batches = [positions[n: n + BATCH_SIZE]
+                       for n in xrange(0, len(data), BATCH_SIZE)]
+            error = 0
+
+            for batch in batches:
+                inputs = numpy.array(map(convert_to_input, batch),
+                                     dtype=numpy.float32)
+                outputs = numpy.array([[data[position]] for position in batch],
+                                      dtype=numpy.float32)
+
+                error += brain.train(inputs, outputs,
+                                     iterations=ITERATIONS_PER_BATCH,
+                                     alpha=ALPHA, beta=BETA,
+                                     ladba=LAMBDA,
+                                     dropout_percentage=DROPOUT_PERCENTAGE)
+
                 iteration += ITERATIONS_PER_BATCH
 
                 if iteration % (GRAPH_FREQUENCY / VERBOSE_PER_EPOCH) == 0:
@@ -138,8 +143,8 @@ if __name__ == "__main__":
                     for weights in brain.weights_list:
                         deviation += numpy.std(weights)
 
-                    print "Iteration: {} :: Accuracy: {}% :: Weights deviation: {}".format(
-                        brain.iteration, round(brain.error, 2), round(deviation, 4))
+                    printf("Iteration: {} :: Accuracy: {}% :: Weights deviation: {}\n".format(
+                        brain.iteration, round(brain.error, 2), round(deviation, 4)))
 
                 if iteration % (GRAPH_FREQUENCY / TEST_PER_EPOCH) == 0 and TEST:
                     printf("Testing network... ")
@@ -149,8 +154,8 @@ if __name__ == "__main__":
                         pylab.scatter(brain.iteration, test_accuracy, c="r")
                         pylab.pause(10 ** -3)
 
-                    print "Iteration: {} :: Test Accuracy: {}%".format(
-                        brain.iteration, round(test_accuracy, 2))
+                    printf("Iteration: {} :: Test Accuracy: {}%\n".format(
+                        brain.iteration, round(test_accuracy, 2)))
 
                 if iteration % GRAPH_FREQUENCY == 0 and GRAPH:
                     pylab.scatter(brain.iteration, brain.error, c="b")
@@ -163,7 +168,7 @@ if __name__ == "__main__":
                     f.close()
                     printf("Done\n")
 
-            print "Iteration: {}  -> ".format(brain.iteration),
+            printf("Iteration: {}  ->  ".format(brain.iteration))
             printf("Saving network... ")
             f = open(SAVE_FILE, "w")
             cPickle.dump(brain, f, cPickle.HIGHEST_PROTOCOL)
@@ -178,4 +183,4 @@ if __name__ == "__main__":
         f.close()
 
     pylab.show()
-    print
+    printf("\n")

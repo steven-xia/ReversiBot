@@ -1,5 +1,5 @@
 """
-File: searcher.py  -- version 0.1.1
+File: searcher.py
 
 Description: Searcher module with simple lookahead logic...
 
@@ -9,12 +9,12 @@ Dependencies:
 TODO: Find the time to rewrite with speed optimizations in mind.
 """
 
-import anytree
-import reversi
-
-import copy
 import time
 
+import anytree
+import copy
+
+import reversi
 
 INFINITY = 10 ** 6
 
@@ -32,7 +32,6 @@ START_POSITION = [
     [2, 2, 2, 2, 2, 2, 2, 2],
     [2, 2, 2, 2, 2, 2, 2, 2],
 ]
-
 
 TRANSPOSITION_TABLE = {}
 

@@ -1,5 +1,5 @@
 """
-File: searcher.py  -- version 0.1.1
+File: searcher_dev.py
 
 Description: Searcher module with simple lookahead logic...
 
@@ -9,12 +9,12 @@ Dependencies:
 TODO: Find the time to rewrite with speed optimizations in mind.
 """
 
-import anytree
-import reversi
-
-import copy
 import time
 
+import anytree
+import copy
+
+import reversi
 
 INFINITY = 10 ** 6
 
@@ -80,12 +80,12 @@ class Searcher:
 
         if self.board.side + node.depth == BLACK:
             score_range = maximum - minimum  # 0 -> x
-            score_cutoff = 0.5 * score_range + minimum
+            score_cutoff = 0.99 * score_range + minimum
             cutoff_function = lambda s: s >= score_cutoff
             foo = min
         else:
             score_range = minimum - maximum  # x -> 0
-            score_cutoff = 0.5 * score_range + maximum
+            score_cutoff = 0.99 * score_range + maximum
             cutoff_function = lambda s: s <= score_cutoff
             foo = max
 
@@ -150,7 +150,7 @@ class Searcher:
             if self.fully_expanded > 64 - self.pieces + 1:
                 break
 
-            if self.fully_expanded > 2:
+            if self.fully_expanded > 3:
                 self.cut()
 
             starting_nodes = self.number_nodes()

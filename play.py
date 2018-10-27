@@ -1,5 +1,5 @@
 """
-File: play.py  -- version 0.3
+File: play.py
 
 Description: Run to play the computer. Edit the CONSTANTS to change how the
 computer player plays. This is the original play file; it is now ported to
@@ -23,11 +23,8 @@ import time
 import searcher
 import evaluator_ab
 import evaluator_nn
-import evaluator_test
-import evaluator_hybrid
-import evaluator_ensemble
 
-import searcher2 as searcher
+import searcher_dev as searcher
 
 sys.stdout.write(".")
 sys.stdout.flush()
@@ -45,7 +42,7 @@ sys.stdout.flush()
 print
 
 FIRST_EVALUATOR = evaluator_nn.evaluate
-SECOND_EVALUATOR = evaluator_test.evaluate
+SECOND_EVALUATOR = evaluator_nn.evaluate
 
 LEVEL = 0
 SPEED_FACTOR = 9 - LEVEL
@@ -56,7 +53,7 @@ MINIMUM_DEPTH = 2
 # TIME = map(lambda x: x / 10.0, range(10, 0, -1)) + [0.1] * 42 + [9999] * 20
 # TIME = map(lambda x: x, TIME)
 # TIME = [0] * 52 + [9999] * 20
-TIME = [0] * 999
+TIME = [30] * 999
 # TIME = [0, 0.5] * 26 + [9999] * 20
 # MINIMUM_DEPTH2 = int(1 + LEVEL / 3)
 # TIME2 = map(lambda x: math.ceil(((x / 20) * (x - 30) + 12) / (1 + 2*SPEED_FACTOR)),
@@ -65,7 +62,7 @@ TIME = [0] * 999
 MINIMUM = -2
 MAXIMUM = 2
 
-SMOOTH_FACTOR = 0.5
+SMOOTH_FACTOR = 0.0
 ONE_AVERAGE = 0
 TWO_AVERAGE = 0
 
@@ -118,11 +115,11 @@ def computer_move_timed(engine):
     print "Evaluating nodes...",
     sys.stdout.flush()
     engine.update_scores()
-    
+
     total_nodes = engine.number_nodes() - total_start_nodes
     total_efficiency = int(total_nodes / (time.time() - total_start_time))
     print "Done"
-    
+
     print "Average speed {} nodes @ {} nodes/sec".format(
         total_nodes,
         total_efficiency
@@ -142,15 +139,20 @@ def computer_move_timed(engine):
 
         if turn % 2 == 0:
             TWO_AVERAGE = SMOOTH_FACTOR * TWO_AVERAGE + (1 - SMOOTH_FACTOR) * score
-            pylab.scatter(turn, round(TWO_AVERAGE, 1), c="r")
+            TWO_AVERAGE = min(max(TWO_AVERAGE, -9.5), 9.5)
+            pylab.scatter(turn, TWO_AVERAGE, c="r")
             score = TWO_AVERAGE
         else:
             ONE_AVERAGE = SMOOTH_FACTOR * ONE_AVERAGE + (1 - SMOOTH_FACTOR) * score
+            ONE_AVERAGE = min(max(ONE_AVERAGE, -9.5), 9.5)
             pylab.scatter(turn, round(ONE_AVERAGE, 1), c="b")
             score = ONE_AVERAGE
 
         MINIMUM = min(score - 0.5, MINIMUM)
         MAXIMUM = max(score + 0.5, MAXIMUM)
+
+        MINIMUM = min(-MAXIMUM, MINIMUM)
+        MAXIMUM = max(-MINIMUM, MAXIMUM)
 
         pylab.axis((0, turn + 1, MINIMUM, MAXIMUM))
         pylab.pause(0.01)

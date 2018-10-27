@@ -11,25 +11,22 @@ Dependencies:
 """
 
 import sys
-import random
 
 import Tkinter
+import random
 import tkMessageBox
 
-import searcher
-import searcher2 as searcher
 import evaluator_ab
+import evaluator_hybrid
 import evaluator_nn
 import evaluator_test
-import evaluator_hybrid
-import evaluator_ensemble
+import searcher_dev as searcher
 
 evaluators = {
     "ab": evaluator_ab.evaluate,
     "nn": evaluator_nn.evaluate,
     "test": evaluator_test.evaluate,
     "hybrid": evaluator_hybrid.evaluate,
-    "ensemble": evaluator_ensemble.evaluate
 }
 
 try:
@@ -75,9 +72,10 @@ SPEED_FACTOR = 9 - LEVEL
 MINIMUM_DEPTH = int(2 + LEVEL / 4)
 
 if EVALUATOR == evaluator_ab.evaluate:
-    TIME = [1] * 64
-elif EVALUATOR in (evaluator_nn.evaluate, evaluator_test.evaluate, evaluator_hybrid.evaluate):
-    TIME = [0.2] * 64
+    TIME = [1] * 65
+elif EVALUATOR in (
+        evaluator_nn.evaluate, evaluator_test.evaluate, evaluator_hybrid.evaluate, evaluator_ensemble.evaluate):
+    TIME = [0.2] * 65
 else:
     raise Exception("NANI???")
 TIME = map(lambda x: LEVEL * x, TIME)
@@ -91,11 +89,19 @@ COMPUTER_MOVING = False
 
 def get_insult(score):
     insults = [
-        "Guess what? You suck!", 
-        "Git good, kiddo...", 
-        
+        "Guess what? You suck at this game!",
+        "Why are you so bad at this game?",
+        "Oh jeez... you're even worse than Andy Liang!",
+        "Is losing all you can do?",
+        "I can't even lose if I tried!",
+        "*laughter",
     ]
-    
+
+    if PLAYER == "black":
+        insults += [
+            "I feel bad for you; your piece set colour is brighter than your future. "
+        ]
+
     return random.choice(insults) + "\nScore: {}".format(score)
 
 
@@ -174,7 +180,7 @@ def update(pieces):
 
     global information_label, evaluation_label
     information = "{} ply :: {} nodes".format(bot.fully_expanded,
-                                          bot.number_nodes())
+                                              bot.number_nodes())
     information_label.config(text=information)
     evaluation = "Evaluation: {}".format(round(bot.game_tree.score / 100, 2))
     evaluation_label.config(text=evaluation)
@@ -191,8 +197,10 @@ if __name__ == "__main__":
     bot = searcher.Searcher((EVALUATOR, EVALUATOR))
     bot.update_scores()
 
+    WINDOW_SIZE = 3
+
     button = Tkinter.Button(root, font=("Comic Sans MS", 10, "bold"),
-                            foreground="red", width=7,
+                            foreground="red", width=2 * WINDOW_SIZE - 1,
                             text="QUIT", command=quit)
     button.grid(row=0, column=7)
 
@@ -200,7 +208,7 @@ if __name__ == "__main__":
     for row in xrange(8):
         for column in xrange(8):
             foo = lambda row=row, column=column: callback((row, column))
-            button = Tkinter.Button(root, height=4, width=8,
+            button = Tkinter.Button(root, height=WINDOW_SIZE, width=2 * WINDOW_SIZE,
                                     relief=Tkinter.FLAT, command=foo)
             button.grid(row=row + 1, column=column)
 

@@ -1,13 +1,14 @@
 """
-File: edax_wrapper.py  -- version 0.1
+File: edax_wrapper.py
 
 Description: Wrapper module for interaction with the Edax engine.
 """
 
-import subprocess
 import time
 
-THREADS = 4
+import subprocess
+
+THREADS = 1
 EDAX_LOCATION = "./Edax/edax-4.4"
 EDAX_COMMAND = "{} -cassio -n-tasks {}".format(
     EDAX_LOCATION,
@@ -64,11 +65,6 @@ def get_evaluation(position, search_time=60, depth=16, probcut_precision=100):
             minimum = -float(output[6][1:])
             maximum = -float(output[10][1:-1])
         evaluation = (minimum + maximum) / 2
-
-        # print "Depth: {}, Score: {}".format(
-        #     output[4][:-1],
-        #     evaluation
-        # )
 
         if end_time - time.time() < 0:
             break

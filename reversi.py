@@ -1,5 +1,5 @@
 """
-File: reversi.py  -- version 0.2
+File: reversi.py
 
 Description: Reversi module for easier management of... everything related to
 the game :D. This is quite slow and non-optimized (although I tried...) .

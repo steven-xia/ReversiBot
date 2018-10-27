@@ -1,28 +1,30 @@
 
 *.pyc
 
-network2\.pkl
+network0\.pkl
 
 network1\.pkl
 
-network_backup\.pkl
+network2\.pkl
 
 network3\.pkl
 
-opening_book\.book
-
-\.idea/workspace\.xml
-
-network0\.pkl
+network_backup\.pkl
 
 network_stable\.pkl
 
 training_data_backup\.txt
-
-build/temp\.linux-x86_64-2\.7/reversi\.o
 
 test\.py
 
 testing_data\.txt
 
 testing_data_backup\.txt
+
+\.idea/workspace\.xml
+
+build/*
+
+reversi\.so
+
+\.idea/

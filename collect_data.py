@@ -1,5 +1,5 @@
 """
-File: collect_data.py  -- version 0.1.1
+File: collect_data.py
 
 Description: Run this to collect training data with the 'Edax' engine.
 
@@ -8,37 +8,24 @@ CREATOR OF THE ENGINE.
 
 NOTE: It has a stupid error thingy (It doesn't crash though). :P
 
-from reversi import Board
-from random import choice
-from collect_data import rotate as rot
-
-b = Board()
-b.display()
-
-def play():
-    b.move(choice(b.legal_moves_notation))
-    b.display()
-    
-def rotate():
-    rot(b.get_pieces())
-
 """
+
+import math
+import sys
+
+import numpy
+import random
 
 import datafile_manager
 import edax_wrapper
 import reversi
-
-import random
-import sys
-import math
-
-import numpy
 
 DATA_FILE = "training_data.txt"
 TEST_FILE = "testing_data.txt"
 
 DEPTH = 16
 
+# Uncomment to collect test data (currently not used).
 # DATA_FILE, TEST_FILE = TEST_FILE, DATA_FILE
 
 
@@ -58,9 +45,11 @@ CONVERSION_CHART2 = {
 def rotate(pieces):
     converted = [[]] * 8
     for row in xrange(8):
-        converted[row] = [int(CONVERSION_CHART[piece]) for piece in str(pieces[row * 8: row * 8 + 8])]
+        converted[row] = [int(CONVERSION_CHART[piece])
+                          for piece in str(pieces[row * 8: row * 8 + 8])]
     converted = numpy.rot90(numpy.array(converted))
-    converted = "".join(CONVERSION_CHART2[piece] for row in converted for piece in row)
+    converted = "".join(CONVERSION_CHART2[piece]
+                        for row in converted for piece in row)
     return converted + pieces[-1]
 
 
@@ -109,7 +98,7 @@ if __name__ == "__main__":
                 sys.stdout.write("Score: {}, ".format(score))
                 score = sigmoid(score)
                 sys.stdout.write("Percentage: {}\n".format(score))
-                
+
                 if type(score) != float:
                     sys.stdout.write("\nWARNING: That stupid error occured again... restarting Edax... ")
                     edax_wrapper.terminate()
@@ -152,7 +141,7 @@ if __name__ == "__main__":
         sys.stdout.write("New dataset size: {}\n".format(len(data)))
 
     except Exception as error:
-        print "WARNING: UNEXPECTED ERROR:", error
+        sys.stdout.write("WARNING: UNEXPECTED ERROR: {}\n".format(error))
 
         sys.stdout.write("Saving data... ")
         sys.stdout.flush()

@@ -31,7 +31,7 @@ SIDE_FACTORS = {0: 1, 1: -1, 2: 0}
 
 def evaluate(board):
     pieces = board.pieces
-    
+
     if board.is_over():
         score = board.score()
         return 100 * (score[0] - score[1])

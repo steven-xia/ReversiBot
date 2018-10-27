@@ -1,10 +1,10 @@
 """
-File: weightsfile_manager.py  -- version 0.1
+File: weightsfile_manager.py
 
 Description: Helper module for interaction with the weights file.
 
 NOTE: This is currently not actually used because the current storage
-implementation is using cPickle (it's just easier that way :).
+implementation is using cPickle (I am very lazy).
 """
 
 import numpy

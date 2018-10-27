@@ -1,13 +1,12 @@
 """
-File: evaluator_nn.py -- version 0.1.1
+File: evaluator_nn.py
 
 Description: This evaluation module uses a pre-trained neural network.
 """
 
-
 import cPickle
-import numpy
 
+import numpy
 import random
 
 INSTANCE_FILE = "network.pkl"
@@ -17,7 +16,7 @@ f = open(INSTANCE_FILE, "r")
 brain = cPickle.load(f)
 f.close()
 
-NOISE_FACTOR = 0.01
+NOISE_FACTOR = 0.05
 LOOK_NICE = True
 
 
@@ -60,7 +59,6 @@ def evaluate(board):
         look_nice_factor = draw_function(60 - empty_places)
     else:
         look_nice_factor = 1
-
 
     inputs = numpy.array([convert_to_input(board)])
     output = brain.think(inputs)[0][0]

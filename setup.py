@@ -1,12 +1,12 @@
 """
-file: setup.py  --version 0.1
+file: setup.py
 
 Description: Simple script to compile 'reversi.pyx' with Cython. Gives
-approximately 2x speed boost with cPython.
+approximately 1x speed boost over cPython.
 """
 
-from distutils.core import setup
 from Cython.Build import cythonize
+from distutils.core import setup
 
 setup(
     ext_modules=cythonize("reversi.pyx")
