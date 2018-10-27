@@ -12,6 +12,8 @@ If you don't know how to play Reversi, look [here](https://en.wikipedia.org/wiki
 
 ### Dependencies
 
+Currently, this project is only compatible with Linux. Apologies to anyone else who is interested.
+
 This project is built on Python 2.7. Please install Python before continuing.
 
 A few additional modules were used to build this project (all under python):
@@ -40,6 +42,11 @@ If all the dependencies are met, you can easily run with (inside the folder).
 
 ```bash
 python gui.py
+```
+
+If you want to train, you need to unzip the training data file: 'training_data.txt':
+```
+unzip training_data.txt
 ```
 
 To compile with Cython, do:
