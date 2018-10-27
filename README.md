@@ -1,5 +1,7 @@
 # ReversiBot
 
+Currently, this project is only compatible with Linux. Apologies to anyone else who is interested.
+
 This is an attempt to implement simple Artificial Neural Networks to play the game of Reversi (also called Othello). 
 Please notify me is you find any of my plethora of mistakes... 
 
@@ -11,8 +13,6 @@ engine. See bottom for more information.
 If you don't know how to play Reversi, look [here](https://en.wikipedia.org/wiki/Reversi#Rules).
 
 ### Dependencies
-
-Currently, this project is only compatible with Linux. Apologies to anyone else who is interested.
 
 This project is built on Python 2.7. Please install Python before continuing.
 
