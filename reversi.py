@@ -97,7 +97,7 @@ class Board:
             else:
                 self.legal_moves = []
                 self.legal_moves_notation = []
-                self._update_legal_moves()
+                self.update_legal_moves()
 
     def __deepcopy__(self, memodict=None):
         if memodict is None:
@@ -162,7 +162,7 @@ class Board:
                         return True
         return False
 
-    def _update_legal_moves(self):
+    def update_legal_moves(self):
         """
         Updates 'self.legal_moves' and 'self.legal_moves_notation'
         :return: None
@@ -244,12 +244,13 @@ class Board:
 
         self.pieces[coordinate[0]][coordinate[1]] = self.side
 
-    def move(self, notation=None):
+    def move(self, notation=None, refresh_moves=True):
         """
         Registers a move in the 'notation' format (eg. "4c") or 'None' if there
         is no possible move. Updates the board, legal moves and changes the
         side-to-go accordingly.
         :param notation: str <- move to be made <OR> None
+        :param refresh_moves: bool <- whether or not to refresh the legal moves
         :return: None
         """
 
@@ -261,7 +262,9 @@ class Board:
             self.available_positions.remove(self.convert_to_coordinate(notation))
 
         self.side = int(not self.side)
-        self._update_legal_moves()
+
+        if refresh_moves:
+            self.update_legal_moves()
 
     def is_over(self):
         """
@@ -273,7 +276,7 @@ class Board:
 
         for _ in xrange(2):
             self.side = int(not self.side)
-            self._update_legal_moves()
+            self.update_legal_moves()
             if self.legal_moves != [None]:
                 game_over = False
 

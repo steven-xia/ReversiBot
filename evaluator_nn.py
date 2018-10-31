@@ -16,7 +16,7 @@ f = open(INSTANCE_FILE, "r")
 brain = cPickle.load(f)
 f.close()
 
-NOISE_FACTOR = 0.05
+NOISE_FACTOR = 0.01
 LOOK_NICE = True
 
 

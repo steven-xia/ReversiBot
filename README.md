@@ -20,7 +20,7 @@ A few additional modules were used to build this project (all under python):
   - anytree
   - numpy
   - matplotlib (optional)
-  - Cython (optional for ~1x speedup)
+  - Cython (optional for ~2x speedup)
 
 Installation should be easy if you have python installed:
 ```bash

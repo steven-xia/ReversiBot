@@ -1,9 +1,9 @@
 #! /usr/bin/python
 
 """
-file: gui.py  -- version 0.1.1
+file: gui.py
 
-Description: Main part of program, using Tkinter windows for pretty display,
+Description: Main part of program, using Tkinter windows for a pretty display,
 otherwise, 'play.py' has more functionality.
 
 Dependencies:
@@ -16,11 +16,11 @@ import Tkinter
 import random
 import tkMessageBox
 
+import searcher
 import evaluator_ab
 import evaluator_hybrid
 import evaluator_nn
 import evaluator_test
-import searcher_dev as searcher
 
 evaluators = {
     "ab": evaluator_ab.evaluate,
@@ -73,8 +73,7 @@ MINIMUM_DEPTH = int(2 + LEVEL / 4)
 
 if EVALUATOR == evaluator_ab.evaluate:
     TIME = [1] * 65
-elif EVALUATOR in (
-        evaluator_nn.evaluate, evaluator_test.evaluate, evaluator_hybrid.evaluate, evaluator_ensemble.evaluate):
+elif EVALUATOR in evaluators.values():
     TIME = [0.2] * 65
 else:
     raise Exception("NANI???")

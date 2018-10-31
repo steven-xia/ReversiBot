@@ -66,9 +66,11 @@ class Searcher:
         :return: None
         """
 
+        node.name.update_legal_moves()
+
         for move in node.name.legal_moves_notation:
             new_board = copy.deepcopy(node.name)
-            new_board.move(move)
+            new_board.move(move, refresh_moves=False)
             anytree.Node(new_board, parent=node, move=move)
 
     def expand(self, t=INFINITY):

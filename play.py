@@ -24,7 +24,7 @@ import searcher
 import evaluator_ab
 import evaluator_nn
 
-import searcher_dev as searcher
+# import searcher_dev as searcher
 
 sys.stdout.write(".")
 sys.stdout.flush()
@@ -41,26 +41,26 @@ sys.stdout.write(". Done\n")
 sys.stdout.flush()
 print
 
-FIRST_EVALUATOR = evaluator_nn.evaluate
-SECOND_EVALUATOR = evaluator_nn.evaluate
+FIRST_EVALUATOR = evaluator_ab.evaluate
+SECOND_EVALUATOR = evaluator_ab.evaluate
 
 LEVEL = 0
 SPEED_FACTOR = 9 - LEVEL
 # MINIMUM_DEPTH = int(2 + LEVEL / 3)
-MINIMUM_DEPTH = 2
+MINIMUM_DEPTH = 3
 # TIME = map(lambda x: math.ceil(((x / 20) * (x - 30) + 12) / (1 + SPEED_FACTOR)),
 #            range(65))  # + [9999] * 20
 # TIME = map(lambda x: x / 10.0, range(10, 0, -1)) + [0.1] * 42 + [9999] * 20
 # TIME = map(lambda x: x, TIME)
 # TIME = [0] * 52 + [9999] * 20
-TIME = [30] * 999
+TIME = [0] + [10,10] * 100
 # TIME = [0, 0.5] * 26 + [9999] * 20
 # MINIMUM_DEPTH2 = int(1 + LEVEL / 3)
 # TIME2 = map(lambda x: math.ceil(((x / 20) * (x - 30) + 12) / (1 + 2*SPEED_FACTOR)),
 #             range(651))
 
-MINIMUM = -2
-MAXIMUM = 2
+MINIMUM = -1
+MAXIMUM = 1
 
 SMOOTH_FACTOR = 0.0
 ONE_AVERAGE = 0
