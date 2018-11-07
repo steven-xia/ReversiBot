@@ -1,21 +1,16 @@
 """
-File: reversi.py
+Module for move generation in the game Reversi.
 
-Description: Reversi module for easier management of... everything related to
-the game :D. This is quite slow and non-optimized (although I tried...) .
+Module for move generation in the game Reversi. The algorithm is implemented
+quite inefficiently and could be improved.
 """
 
+import numpy
+
+BOARD_SIZE = 8
 EMPTY = 2
 BLACK = 0
 WHITE = 1
-
-NUMBER_TO_PIECE = {
-    2: "  ",
-    0: "@@",
-    1: "--"
-}
-
-BOARD_SIZE = 8
 
 a = ord("a")
 NOTATION_CHART = {n: chr(n + a) for n in xrange(8)}
@@ -27,9 +22,15 @@ CONVERSION_CHART = {
     2: "-"
 }
 
+NUMBER_TO_PIECE = {
+    2: "  ",
+    0: "@@",
+    1: "--"
+}
+
 STARTING_LEGAL_MOVES = [(2, 3), (3, 2), (4, 5), (5, 4)]
 STARTING_LEGAL_MOVES_NOTATION = ['d3', 'c4', 'f5', 'e6']
-START_POSITION = [
+START_POSITION = numpy.array([
     [2, 2, 2, 2, 2, 2, 2, 2],
     [2, 2, 2, 2, 2, 2, 2, 2],
     [2, 2, 2, 2, 2, 2, 2, 2],
@@ -38,7 +39,7 @@ START_POSITION = [
     [2, 2, 2, 2, 2, 2, 2, 2],
     [2, 2, 2, 2, 2, 2, 2, 2],
     [2, 2, 2, 2, 2, 2, 2, 2],
-]
+])
 
 ALLOWED_COORDINATES = frozenset([(x, y) for x in xrange(8) for y in xrange(8)])
 ALLOWED_COORDINATES = {x: False for x in ALLOWED_COORDINATES}
@@ -65,7 +66,8 @@ for coordinate in ALLOWED_COORDINATES:
     for foo in functions:
         temporary_coordinate = coordinate
         for _ in xrange(2):
-            temporary_coordinate = foo(temporary_coordinate[0], temporary_coordinate[1])
+            temporary_coordinate = foo(temporary_coordinate[0],
+                                       temporary_coordinate[1])
         if max(temporary_coordinate) > 7 or min(temporary_coordinate) < 0:
             functions.remove(foo)
     coordinates = [foo(coordinate[0], coordinate[1]) for foo in functions]
@@ -79,12 +81,17 @@ AVAILABLE_POSITIONS.remove((4, 4))
 
 
 class Board:
+    """Board object to represent a position in a game of Reversi."""
+
     def __init__(self, pieces=None, side=BLACK, copied=False):
         """
-        Creates a board instance, used for finding legal moves.
-        :param pieces: 2d list
-        """
+        Create piece representations and other needed attributes.
 
+        Create piece representation and determine the legal moves for
+        a particular piece representation in 'pieces'. If 'copied' is True,
+        don't set the variables because they are expected to be set after
+        creation as in the __deepcopy__ function.
+        """
         if not copied:
             self.pieces = pieces
             self.side = side
@@ -102,18 +109,12 @@ class Board:
     def __deepcopy__(self, memodict=None):
         if memodict is None:
             memodict = {}
-        pieces = [row[:] for row in self.pieces]
         new_instance = Board(copied=True)
-        new_instance.pieces = pieces
+        new_instance.pieces = [row[:] for row in self.pieces]
         new_instance.side = self.side
-        new_instance.available_positions = [move[:] for move in self.available_positions]
-
-        if self.legal_moves == [None]:
-            new_instance.legal_moves = [None]
-            new_instance.legal_moves_notation = [None]
-        else:
-            new_instance.legal_moves = [legal_move[:] for legal_move in self.legal_moves]
-            new_instance.legal_moves_notation = [legal_move[:] for legal_move in self.legal_moves_notation]
+        new_instance.available_positions = list(self.available_positions)
+        new_instance.legal_moves = list(self.legal_moves)
+        new_instance.legal_moves_notation = list(self.legal_moves_notation)
 
         return new_instance
 
@@ -136,8 +137,8 @@ class Board:
 
     def _legal_position(self, coordinate):
         """
-        Finds whether the coordinate is a legal move. Also can be used to return
-        the directions in which a move will flip pieces.
+        Finds whether the coordinate is a legal move. Also can be used to
+        return the directions in which a move will flip pieces.
         :param coordinate: tuple -> (row, column)
         :return: bool <OR> list
         """
@@ -151,15 +152,17 @@ class Board:
         for index, temporary_coordinate in enumerate(around):
             if self.out_of_bounds(temporary_coordinate):
                 continue
-            if self.pieces[temporary_coordinate[0]][temporary_coordinate[1]] == opposite_side:
-                temporary = coordinate[:]
-                while True:
-                    temporary = around_functions[index](temporary[0], temporary[1])
-                    if self.out_of_bounds(temporary) or \
-                            self.pieces[temporary[0]][temporary[1]] == EMPTY:
-                        break
+            if self.pieces[temporary_coordinate[0]][temporary_coordinate[1]] == \
+                    opposite_side:
+                temporary = around_functions[index](coordinate[0],
+                                                    coordinate[1])
+                while self.pieces[temporary[0]][temporary[1]] != EMPTY and \
+                        not self.out_of_bounds(temporary):
                     if self.pieces[temporary[0]][temporary[1]] == self.side:
                         return True
+                    temporary = around_functions[index](
+                        temporary[0], temporary[1])
+
         return False
 
     def update_legal_moves(self):
@@ -214,7 +217,8 @@ class Board:
             if self.pieces[temporary_coordinate[0]][temporary_coordinate[1]] == opposite_side:
                 temporary = coordinate[:]
                 while True:
-                    temporary = AROUND_FUNCTIONS[index](temporary[0], temporary[1])
+                    temporary = AROUND_FUNCTIONS[index](
+                        temporary[0], temporary[1])
                     if self.out_of_bounds(temporary) or \
                             self.pieces[temporary[0]][temporary[1]] == EMPTY:
                         break
@@ -259,7 +263,8 @@ class Board:
 
         if notation is not None:
             self._update_board(self.convert_to_coordinate(notation))
-            self.available_positions.remove(self.convert_to_coordinate(notation))
+            self.available_positions.remove(
+                self.convert_to_coordinate(notation))
 
         self.side = int(not self.side)
 
@@ -314,7 +319,8 @@ class Board:
         return score
 
     def get_pieces(self):
-        pieces = "".join(CONVERSION_CHART[piece] for row in self.pieces for piece in row)
+        pieces = "".join(CONVERSION_CHART[piece]
+                         for row in self.pieces for piece in row)
         return pieces + CONVERSION_CHART[self.side]
 
 

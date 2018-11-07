@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
 """
-file: gui.py
+file: gui.py .
 
 Description: Main part of program, using Tkinter windows for a pretty display,
 otherwise, 'play.py' has more functionality.
@@ -18,7 +18,6 @@ import tkMessageBox
 
 import searcher
 import evaluator_ab
-import evaluator_hybrid
 import evaluator_nn
 import evaluator_test
 
@@ -26,7 +25,14 @@ evaluators = {
     "ab": evaluator_ab.evaluate,
     "nn": evaluator_nn.evaluate,
     "test": evaluator_test.evaluate,
-    "hybrid": evaluator_hybrid.evaluate,
+}
+
+levels = {
+    0: (0.0, 1),
+    1: (0.1, 1),
+    2: (0.8, 2),
+    3: (2.7, 3),
+    4: (6.4, 4)
 }
 
 try:
@@ -47,7 +53,7 @@ try:
                 tkMessageBox.showwarning(title="Warning", message=message)
         elif attribute == "level":
             value = int(value)
-            if value in range(301):
+            if value in levels.keys():
                 LEVEL = value
             else:
                 message = "'{}' not a valid argument for 'level'; using " \
@@ -68,16 +74,8 @@ except:
               "default values."
     tkMessageBox.showerror(title="Error", message=message)
 
-SPEED_FACTOR = 9 - LEVEL
-MINIMUM_DEPTH = int(2 + LEVEL / 4)
-
-if EVALUATOR == evaluator_ab.evaluate:
-    TIME = [1] * 65
-elif EVALUATOR in evaluators.values():
-    TIME = [0.2] * 65
-else:
-    raise Exception("NANI???")
-TIME = map(lambda x: LEVEL * x, TIME)
+TIME = [levels[LEVEL][0]] * 65
+MINIMUM_DEPTH = levels[LEVEL][1]
 
 turn = 0
 
@@ -139,8 +137,8 @@ def computer_move():
     turn += 1
 
     bot.timed_expand(TIME[turn])
-    # while bot.fully_expanded - int(not bot.caught_up) < MINIMUM_DEPTH:
-    #     bot.expand()
+    while bot.fully_expanded - int(not bot.caught_up) < MINIMUM_DEPTH:
+        bot.expand()
 
     bot.update_scores()
     bot.move(bot.best_move())
@@ -153,6 +151,9 @@ def computer_move():
                 (score[0] - score[1] < 0 and PLAYER == "white"):
             message = "Hey... you won...\nScore: {}".format(score)
             tkMessageBox.showinfo(title="You Win!", message=message)
+        elif score[0] == score[1]:
+            message = "I'll get you next time... "
+            tkMessageBox.showinfo(title="Tie!", message=message)
         else:
             message = get_insult(score)
             tkMessageBox.showinfo(title="You Lost!", message=message)
@@ -196,7 +197,7 @@ if __name__ == "__main__":
     bot = searcher.Searcher((EVALUATOR, EVALUATOR))
     bot.update_scores()
 
-    WINDOW_SIZE = 3
+    WINDOW_SIZE = 4
 
     button = Tkinter.Button(root, font=("Comic Sans MS", 10, "bold"),
                             foreground="red", width=2 * WINDOW_SIZE - 1,

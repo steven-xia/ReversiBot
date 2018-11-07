@@ -108,6 +108,8 @@ class NeuralNetwork:
                                                        1 - dropout_percentage)[0]
                 layers[-1] *= dropout_matrix * (1.0 / (1 - dropout_percentage))
                 layers[-1] = numpy.nan_to_num(layers[-1])
+                # layers[-1] -= numpy.mean(layers[-1])
+                # layers[-1] /= numpy.std(layers[-1])
             layers.append(self.non_linearity(numpy.dot(layers[-1], self.weights_list[-1]), final_layer=True))
 
             # Backward propagate.
@@ -161,6 +163,8 @@ class NeuralNetwork:
             layers.append(numpy.nan_to_num(
                 self.non_linearity(numpy.dot(layers[-1], self.weights_list[weights_set_index]))
             ))
+            # layers[-1] -= numpy.mean(layers[-1])
+            # layers[-1] /= numpy.std(layers[-1])
 
         layers.append(self.non_linearity(numpy.dot(layers[-1], self.weights_list[-1]), final_layer=True))
         return layers[-1]

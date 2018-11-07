@@ -32,3 +32,17 @@ reversi\.so
 \.idea/
 
 *.swp
+
+network_longtemp\.pkl
+
+network_save\.pkl
+
+network_shorttemp\.pkl
+
+network_temp\.pkl
+
+reversi\.so_backup
+
+reversi\.py_backup
+
+reversi\.c

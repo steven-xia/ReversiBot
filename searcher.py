@@ -216,7 +216,7 @@ class Searcher:
                 self.pieces += 1
 
         for board in TRANSPOSITION_TABLE.keys():
-            if len(board.available_positions) >= 64 - self.pieces:
+            if len(board.available_positions) >= 63 - self.pieces:
                 del TRANSPOSITION_TABLE[board]
 
     def number_nodes(self):

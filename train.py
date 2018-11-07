@@ -36,16 +36,17 @@ sys.stdout.flush()
 LOAD_INSTANCE = False
 LOAD_FILE = "network_save.pkl"
 SAVE_FILE = "network_temp.pkl"
+INTERMEDIATE_SAVE_FILE = "network_shorttemp.pkl"
 SECONDARY_SAVE_FILE = "network_longtemp.pkl"
 DATA_FILE = "training_data.txt"
 
-BATCH_SIZE = 100
+BATCH_SIZE = 16
 ITERATIONS_PER_BATCH = 1
-HIDDEN_LAYERS = (256, 256, 64)
+HIDDEN_LAYERS = (512, 512, 256, 64)
 
-ALPHA = 0.0004
-BETA = 0.9
-DROPOUT_PERCENTAGE = 0.7
+ALPHA = 0.0032
+BETA = 0.8
+DROPOUT_PERCENTAGE = 0.5
 LAMBDA = 10 ** -3
 
 VERBOSE_PER_EPOCH = 100
@@ -72,9 +73,9 @@ def convert_to_input(pieces):
                 converted += [0, 0]
 
     if pieces[-1] == "X":
-        converted.append(0)
+        converted += [1, 0]
     else:
-        converted.append(1)
+        converted += [0, 1]
 
     return converted
 
@@ -85,7 +86,7 @@ if __name__ == "__main__":
         brain = cPickle.load(f)
         f.close()
     else:
-        brain = neural_network.NeuralNetwork(input_layer_size=129,
+        brain = neural_network.NeuralNetwork(input_layer_size=130,
                                              hidden_layer_sizes=HIDDEN_LAYERS,
                                              output_layer_size=1)
         error = 0
@@ -109,9 +110,9 @@ if __name__ == "__main__":
         while True:
 
             spacer = "=" * 15
-            printf(spacer + " EPOCH: {} \n".format(
+            printf(spacer + " EPOCH: {} ".format(
                 round(float(brain.iteration) / (len(data) / BATCH_SIZE), 1) + 1)
-                   + spacer)
+                   + spacer + "\n")
             printf("Last error: {}\n".format(brain.error))
 
             random.shuffle(positions)
@@ -160,6 +161,13 @@ if __name__ == "__main__":
                 if iteration % GRAPH_FREQUENCY == 0 and GRAPH:
                     pylab.scatter(brain.iteration, brain.error, c="b")
                     pylab.pause(10 ** -3)
+
+                if brain.iteration % 1000 == 0:
+                    printf("Saving intermediate network... ")
+                    f = open(INTERMEDIATE_SAVE_FILE, "w")
+                    cPickle.dump(brain, f, cPickle.HIGHEST_PROTOCOL)
+                    f.close()
+                    printf("Done\n")
 
                 if brain.iteration % 100000 == 0:
                     printf("Saving network as secondary... ")

@@ -110,18 +110,13 @@ class Board:
                 self.update_legal_moves()
 
     def __deepcopy__(self, memodict={}):
-        pieces = [row[:] for row in self.pieces]
         new_instance = Board(copied=True)
-        new_instance.pieces = pieces
+        new_instance.pieces = [row[:] for row in self.pieces]
         new_instance.side = self.side
-        new_instance.available_positions = [move[:] for move in self.available_positions]
+        new_instance.available_positions = self.available_positions[:]
 
-        if self.legal_moves == [None]:
-            new_instance.legal_moves = [None]
-            new_instance.legal_moves_notation = [None]
-        else:
-            new_instance.legal_moves = [legal_move[:] for legal_move in self.legal_moves]
-            new_instance.legal_moves_notation = [legal_move[:] for legal_move in self.legal_moves_notation]
+        new_instance.legal_moves = list(self.legal_moves)
+        new_instance.legal_moves_notation = list(self.legal_moves_notation)
 
         return new_instance
 
