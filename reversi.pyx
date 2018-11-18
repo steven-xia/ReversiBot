@@ -24,8 +24,8 @@ NUMBER_TO_PIECE = {
 BOARD_SIZE = 8
 
 a = ord("a")
-NOTATION_CHART = {n: chr(n + a) for n in xrange(8)}
-COORDINATE_CHART = {chr(n + a): n for n in xrange(8)}
+NOTATION_CHART = {n: chr(n + a) for n in range(8)}
+COORDINATE_CHART = {chr(n + a): n for n in range(8)}
 
 CONVERSION_CHART = {
     0: "X",
@@ -35,7 +35,7 @@ CONVERSION_CHART = {
 
 STARTING_LEGAL_MOVES = [(2, 3), (3, 2), (4, 5), (5, 4)]
 STARTING_LEGAL_MOVES_NOTATION = ['d3', 'c4', 'f5', 'e6']
-START_POSITION = numpy.array([
+START_POSITION = [
     [2, 2, 2, 2, 2, 2, 2, 2],
     [2, 2, 2, 2, 2, 2, 2, 2],
     [2, 2, 2, 2, 2, 2, 2, 2],
@@ -44,12 +44,12 @@ START_POSITION = numpy.array([
     [2, 2, 2, 2, 2, 2, 2, 2],
     [2, 2, 2, 2, 2, 2, 2, 2],
     [2, 2, 2, 2, 2, 2, 2, 2],
-])
+]
 
-ALLOWED_COORDINATES = frozenset([(x, y) for x in xrange(8) for y in xrange(8)])
+ALLOWED_COORDINATES = frozenset([(x, y) for x in range(8) for y in range(8)])
 ALLOWED_COORDINATES = {x: False for x in ALLOWED_COORDINATES}
-NOT_ALLOWED = frozenset([(x, y) for x in [-1, 8] for y in xrange(-1, 9)] +
-                        [(x, y) for x in xrange(8) for y in [-1, 8]])
+NOT_ALLOWED = frozenset([(x, y) for x in [-1, 8] for y in range(-1, 9)] +
+                        [(x, y) for x in range(8) for y in [-1, 8]])
 NOT_ALLOWED = {x: True for x in NOT_ALLOWED}
 # COORDINATES = ALLOWED_COORDINATES.copy()
 # COORDINATES.update(NOT_ALLOWED)
@@ -70,7 +70,7 @@ for coordinate in ALLOWED_COORDINATES:
     functions = AROUND_FUNCTIONS[:]
     for foo in functions:
         temporary_coordinate = coordinate
-        for _ in xrange(2):
+        for _ in range(2):
             temporary_coordinate = foo(temporary_coordinate[0], temporary_coordinate[1])
         if max(temporary_coordinate) > 7 or min(temporary_coordinate) < 0:
             functions.remove(foo)
@@ -276,7 +276,7 @@ class Board:
 
         game_over = True
 
-        for _ in xrange(2):
+        for _ in range(2):
             self.side = int(not self.side)
             self.update_legal_moves()
             if self.legal_moves != [None]:
@@ -291,7 +291,7 @@ class Board:
         """
 
         rows = []
-        for index in xrange(len(self.pieces)):
+        for index in range(len(self.pieces)):
             row = self.pieces[index]
             str_row = map(lambda x: NUMBER_TO_PIECE[x], row)
             rows.append(str(index + 1) + " | " + " | ".join(str_row) + " |\n")

@@ -12,18 +12,21 @@ NOTE: It has a stupid error thingy (It doesn't crash though). :P
 
 import math
 import sys
+import random
 
 import numpy
-import random
 
 import datafile_manager
 import edax_wrapper
 import reversi
 
-DATA_FILE = "training_data.txt"
-TEST_FILE = "testing_data.txt"
+DATA_FILE = "training_data_catered.txt"
+TEST_FILE = "this is a just a string... "
 
 DEPTH = 16
+
+RANDOM_PERCENTAGE = 20
+RANDOM_ARRAY = RANDOM_PERCENTAGE * [1] + (100 - RANDOM_PERCENTAGE) * [0]
 
 # Uncomment to collect test data (currently not used).
 # DATA_FILE, TEST_FILE = TEST_FILE, DATA_FILE
@@ -54,7 +57,7 @@ def rotate(pieces):
 
 
 def sigmoid(x):
-    return 1 / (1 + math.exp(-x))
+    return 1 / (1 + math.exp(-x/2.0))
 
 
 if __name__ == "__main__":
@@ -80,15 +83,16 @@ if __name__ == "__main__":
 
     try:
         while True:
-            # sys.stdout.write("Initializing board... ")
             b = reversi.Board()
-            # sys.stdout.write("Done\n")
+            first = True
 
             while not b.is_over() and len(b.available_positions) > 8:
-                # sys.stdout.write("Choosing random move... ")
-                random_move = random.choice(b.legal_moves_notation)
-                b.move(random_move)
-                # sys.stdout.write("Move: {}\n".format(random_move))
+                if random.choice(RANDOM_ARRAY) or first:
+                    move = random.choice(b.legal_moves_notation)
+                    first = False
+                else:
+                    move = edax_wrapper.best_move()
+                b.move(move)
 
                 position = b.get_pieces()
                 sys.stdout.write("New position: {}\n".format(position))

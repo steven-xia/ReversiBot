@@ -31,6 +31,10 @@ reversi\.so
 
 \.idea/
 
+\.mypy_cache/
+
+__pychache__/
+
 *.swp
 
 network_longtemp\.pkl

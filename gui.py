@@ -32,7 +32,8 @@ levels = {
     1: (0.1, 1),
     2: (0.8, 2),
     3: (2.7, 3),
-    4: (6.4, 4)
+    4: (6.4, 4),
+    5: (12.5, 5)
 }
 
 try:
@@ -66,6 +67,22 @@ try:
                 message = "'{}' not a valid argument for 'computer'; using " \
                           "default: 'nn'".format(value)
                 tkMessageBox.showwarning(title="Warning", message=message)
+        elif attribute == "searcher" and value[:-1] == "test":
+            import searcher_test as searcher
+            import searcher as old_searcher
+            levels = {
+                0: (0.0, 1),
+                1: (0.1, 1),
+                2: (0.4, 2),
+                3: (0.9, 3),
+                4: (1.6, 4),
+                5: (2.5, 5),
+                6: (3.6, 6), 
+                7: (4.9, 7), 
+                8: (6.4, 8), 
+                9: (8.1, 9),
+            }
+            LEVEL = int(value[-1])
 except:
     PLAYER = "black"
     LEVEL = 1
@@ -179,11 +196,16 @@ def update(pieces):
                 function_list[row_index * 8 + column_index](piece)
 
     global information_label, evaluation_label
-    information = "{} ply :: {} nodes".format(bot.fully_expanded,
-                                              bot.number_nodes())
-    information_label.config(text=information)
-    evaluation = "Evaluation: {}".format(round(bot.game_tree.score / 100, 2))
-    evaluation_label.config(text=evaluation)
+    if "old_searcher" in globals():
+        information_label.config(text="TESTING      TESTING")
+        evaluation_label.config(text="TESTING      TESTING")
+    else:
+        information = "{} ply :: {} nodes".format(bot.fully_expanded,
+                                                  bot.number_nodes())
+        information_label.config(text=information)
+        
+        evaluation = "Evaluation: {}".format(round(bot.game_tree.score / 100, 2))
+        evaluation_label.config(text=evaluation)
 
 
 if __name__ == "__main__":

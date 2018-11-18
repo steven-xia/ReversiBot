@@ -8,7 +8,7 @@ import time
 
 import subprocess
 
-THREADS = 1
+THREADS = 2
 EDAX_LOCATION = "./Edax/edax-4.4"
 EDAX_COMMAND = "{} -cassio -n-tasks {}".format(
     EDAX_LOCATION,
@@ -41,7 +41,8 @@ def terminate():
 
 
 def get_evaluation(position, search_time=60, depth=16, probcut_precision=100):
-    global process
+    global process, last_position
+    last_position = position
 
     end_time = time.time() + search_time
     evaluation = 0
@@ -72,6 +73,24 @@ def get_evaluation(position, search_time=60, depth=16, probcut_precision=100):
         time.sleep(0.01)  # Make sure the the inputs don't get messed up... :P
 
     return evaluation
+
+
+def best_move():
+    global process, last_position
+
+    search_string = "ENGINE-PROTOCOL midgame-search {} -64 64 {} {}\n".format(
+        last_position, 0, 100
+    )
+
+    process.stdin.write(search_string)
+    process.stdin.flush()
+    output = process.stdout.readline()[:-1].split()
+    process.stdout.readline()
+
+    move = output[2]
+    move = move[0].lower() + move[1]
+
+    return move
 
 
 def new_position():

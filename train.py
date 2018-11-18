@@ -40,14 +40,17 @@ INTERMEDIATE_SAVE_FILE = "network_shorttemp.pkl"
 SECONDARY_SAVE_FILE = "network_longtemp.pkl"
 DATA_FILE = "training_data.txt"
 
-BATCH_SIZE = 16
+BATCH_SIZE = 64
 ITERATIONS_PER_BATCH = 1
-HIDDEN_LAYERS = (512, 512, 256, 64)
+HIDDEN_LAYERS = (256, 256, 256, 256, 64, 64)
 
-ALPHA = 0.0032
-BETA = 0.8
+ALPHA = 0.00016
 DROPOUT_PERCENTAGE = 0.5
-LAMBDA = 10 ** -3
+BETA = 0.5
+
+ALPHAx = lambda x: 0.8 * x
+BETAx = lambda x: x ** 0.8
+BATCH_SIZEx = lambda x: int(1.0 * x)
 
 VERBOSE_PER_EPOCH = 100
 LOTS_GRAPH = True
@@ -111,9 +114,9 @@ if __name__ == "__main__":
 
             spacer = "=" * 15
             printf(spacer + " EPOCH: {} ".format(
-                round(float(brain.iteration) / (len(data) / BATCH_SIZE), 1) + 1)
+                round(float(brain.iteration) / (len(data) / BATCH_SIZE), 1))
                    + spacer + "\n")
-            printf("Last error: {}\n".format(brain.error))
+            printf("Last accuracy: {}\n".format(brain.error))
 
             random.shuffle(positions)
             batches = [positions[n: n + BATCH_SIZE]
@@ -128,9 +131,9 @@ if __name__ == "__main__":
 
                 error += brain.train(inputs, outputs,
                                      iterations=ITERATIONS_PER_BATCH,
-                                     alpha=ALPHA, beta=BETA,
-                                     ladba=LAMBDA,
-                                     dropout_percentage=DROPOUT_PERCENTAGE)
+                                     alpha=ALPHA,
+                                     dropout_percentage=DROPOUT_PERCENTAGE,
+                                     beta=BETA)
 
                 iteration += ITERATIONS_PER_BATCH
 
@@ -183,12 +186,26 @@ if __name__ == "__main__":
             f.close()
             printf("Done\n")
 
+            ALPHA = ALPHAx(ALPHA)
+            BETA = BETAx(BETA)
+            BATCH_SIZE = BATCH_SIZEx(BATCH_SIZE)
+
+            print "New hyper-perameters: "
+            print "    BATCH_SIZE: ", BATCH_SIZE
+            print "    ALPHA: ", ALPHA
+            print "    BETA: ", BETA
+
     except KeyboardInterrupt:
         brain.iteration = int(round(brain.iteration / 100.0)) * 100
 
         f = open(SAVE_FILE, "w")
         cPickle.dump(brain, f, cPickle.HIGHEST_PROTOCOL)
         f.close()
+
+    print "Final hyper-perameters: "
+    print "    BATCH_SIZE: ", BATCH_SIZE
+    print "    ALPHA: ", ALPHA
+    print "    BETA: ", BETA
 
     pylab.show()
     printf("\n")

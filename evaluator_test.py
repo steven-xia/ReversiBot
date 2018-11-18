@@ -12,11 +12,11 @@ import random
 INSTANCE_FILE = "network_test.pkl"
 LOOK_NICE = False
 
-f = open(INSTANCE_FILE, "r")
+f = open(INSTANCE_FILE, "rb")
 brain = cPickle.load(f)
 f.close()
 
-NOISE_FACTOR = 0.05
+NOISE_FACTOR = 0.01
 LOOK_NICE = True
 
 
