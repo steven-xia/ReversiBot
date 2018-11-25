@@ -20,6 +20,7 @@ sys.stdout.flush()
 import cPickle
 import numpy
 import random
+import math
 
 sys.stdout.write(".")
 sys.stdout.flush()
@@ -40,16 +41,17 @@ INTERMEDIATE_SAVE_FILE = "network_shorttemp.pkl"
 SECONDARY_SAVE_FILE = "network_longtemp.pkl"
 DATA_FILE = "training_data.txt"
 
-BATCH_SIZE = 64
+BATCH_SIZE = 256
 ITERATIONS_PER_BATCH = 1
-HIDDEN_LAYERS = (256, 256, 256, 256, 64, 64)
+HIDDEN_LAYERS = (256, 256, 64)
 
-ALPHA = 0.00016
+ALPHA = 0.0016
 DROPOUT_PERCENTAGE = 0.5
 BETA = 0.5
 
-ALPHAx = lambda x: 0.8 * x
-BETAx = lambda x: x ** 0.8
+HALF_LIFE = 2
+ALPHAx = lambda x: (0.5 ** (1.0/HALF_LIFE)) * x
+BETAx = lambda x: x ** (0.5 ** (1.0/HALF_LIFE))
 BATCH_SIZEx = lambda x: int(1.0 * x)
 
 VERBOSE_PER_EPOCH = 100

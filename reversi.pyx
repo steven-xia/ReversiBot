@@ -7,7 +7,12 @@ the game :D. This is quite slow and non-optimized (although I tried...) .
 NOTE: .pyx file for Cython compilation.
 """
 
+from cython.parallel cimport prange
+from cpython cimport array
+import array
+
 import numpy
+import copy
 
 
 cdef unsigned char EMPTY, BLACK, WHITE, BOARD_SIZE
@@ -35,16 +40,30 @@ CONVERSION_CHART = {
 
 STARTING_LEGAL_MOVES = [(2, 3), (3, 2), (4, 5), (5, 4)]
 STARTING_LEGAL_MOVES_NOTATION = ['d3', 'c4', 'f5', 'e6']
-START_POSITION = [
-    [2, 2, 2, 2, 2, 2, 2, 2],
-    [2, 2, 2, 2, 2, 2, 2, 2],
-    [2, 2, 2, 2, 2, 2, 2, 2],
-    [2, 2, 2, 1, 0, 2, 2, 2],
-    [2, 2, 2, 0, 1, 2, 2, 2],
-    [2, 2, 2, 2, 2, 2, 2, 2],
-    [2, 2, 2, 2, 2, 2, 2, 2],
-    [2, 2, 2, 2, 2, 2, 2, 2],
+
+# START_POSITION = [
+#     [2, 2, 2, 2, 2, 2, 2, 2],
+#     [2, 2, 2, 2, 2, 2, 2, 2],
+#     [2, 2, 2, 2, 2, 2, 2, 2],
+#     [2, 2, 2, 1, 0, 2, 2, 2],
+#     [2, 2, 2, 0, 1, 2, 2, 2],
+#     [2, 2, 2, 2, 2, 2, 2, 2],
+#     [2, 2, 2, 2, 2, 2, 2, 2],
+#     [2, 2, 2, 2, 2, 2, 2, 2],
+# ]
+
+temp = [
+    array.array("b", [2, 2, 2, 2, 2, 2, 2, 2]),
+    array.array("b", [2, 2, 2, 2, 2, 2, 2, 2]),
+    array.array("b", [2, 2, 2, 2, 2, 2, 2, 2]),
+    array.array("b", [2, 2, 2, 1, 0, 2, 2, 2]),
+    array.array("b", [2, 2, 2, 0, 1, 2, 2, 2]),
+    array.array("b", [2, 2, 2, 2, 2, 2, 2, 2]),
+    array.array("b", [2, 2, 2, 2, 2, 2, 2, 2]),
+    array.array("b", [2, 2, 2, 2, 2, 2, 2, 2]),
 ]
+
+cdef int[8][8] START_POSITION = temp
 
 ALLOWED_COORDINATES = frozenset([(x, y) for x in range(8) for y in range(8)])
 ALLOWED_COORDINATES = {x: False for x in ALLOWED_COORDINATES}
@@ -75,6 +94,9 @@ for coordinate in ALLOWED_COORDINATES:
         if max(temporary_coordinate) > 7 or min(temporary_coordinate) < 0:
             functions.remove(foo)
     coordinates = [foo(coordinate[0], coordinate[1]) for foo in functions]
+    # for coord in coordinates[::-1]:
+    #     if max(coord) > 7 or min(coord) < 0:
+    #         coordinates.remove(coord)
     COORDINATES[coordinate] = coordinates, functions
 
 AVAILABLE_POSITIONS = list(ALLOWED_COORDINATES.keys())
@@ -101,7 +123,8 @@ class Board:
             self.available_positions = AVAILABLE_POSITIONS[:]
 
             if pieces is None:
-                self.pieces = [row[:] for row in START_POSITION]
+                # self.pieces = [row[:] for row in START_POSITION]
+                self.pieces = copy.deepcopy(START_POSITION)
                 self.legal_moves = [move[:] for move in STARTING_LEGAL_MOVES]
                 self.legal_moves_notation = STARTING_LEGAL_MOVES_NOTATION[:]
             else:

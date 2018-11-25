@@ -11,6 +11,7 @@ TODO: Find the time to rewrite with speed optimizations in mind.
 
 import time
 import heapq
+import array
 
 import anytree
 import copy
@@ -24,14 +25,14 @@ BLACK = 0
 WHITE = 1
 
 START_POSITION = [
-    [2, 2, 2, 2, 2, 2, 2, 2],
-    [2, 2, 2, 2, 2, 2, 2, 2],
-    [2, 2, 2, 2, 2, 2, 2, 2],
-    [2, 2, 2, 1, 0, 2, 2, 2],
-    [2, 2, 2, 0, 1, 2, 2, 2],
-    [2, 2, 2, 2, 2, 2, 2, 2],
-    [2, 2, 2, 2, 2, 2, 2, 2],
-    [2, 2, 2, 2, 2, 2, 2, 2],
+    array.array("b", [2, 2, 2, 2, 2, 2, 2, 2]),
+    array.array("b", [2, 2, 2, 2, 2, 2, 2, 2]),
+    array.array("b", [2, 2, 2, 2, 2, 2, 2, 2]),
+    array.array("b", [2, 2, 2, 1, 0, 2, 2, 2]),
+    array.array("b", [2, 2, 2, 0, 1, 2, 2, 2]),
+    array.array("b", [2, 2, 2, 2, 2, 2, 2, 2]),
+    array.array("b", [2, 2, 2, 2, 2, 2, 2, 2]),
+    array.array("b", [2, 2, 2, 2, 2, 2, 2, 2]),
 ]
 
 TRANSPOSITION_TABLE = {}
@@ -74,28 +75,74 @@ class Searcher:
             new_board.move(move, refresh_moves=False)
             anytree.Node(new_board, parent=node, move=move)
 
-    def cut(self):
-        for node in anytree.PreOrderIter(self.game_tree, filter_=lambda n: n.depth % 2 == 0,
-                                         maxlevel=self.fully_expanded - 3):
-            # dab_depth_and_length = max(2, int(0.618 ** len(node.children)))
-            dab_depth_and_length = 2
-            if node.name.side == BLACK:
-                node.children = heapq.nlargest(dab_depth_and_length, node.children, key=lambda n: n.score 
-                                               if hasattr(n, "score") else -INFINITY)
-            else:
-                node.children = heapq.nsmallest(dab_depth_and_length, node.children, key=lambda n: n.score 
-                                                if hasattr(n, "score") else INFINITY)
+    def cut(self, pcutpairs=[[7.09, 3], [4.37, 4], [2.71, 5]], \
+            ocutpairs=[[8.22, 3], [5.08, 4], [3.14, 5]]):
+        cutless = 32
+        if self.pieces > cutless:
+            pcutpairs = [[a[0] * self.pieces - cutless, a[1]] for a in pcutpairs]
+            ocutpairs = [[a[0] * self.pieces - cutless, a[1]] for a in ocutpairs]
 
-        for node in anytree.PreOrderIter(self.game_tree, filter_=lambda n: n.depth % 2 == 1,
-                                         maxlevel=self.fully_expanded - 4):
-            # dab_depth_and_length = max(2, int(0.618 ** len(node.children)))
-            dab_depth_and_length = 2
-            if node.name.side == BLACK:
-                node.children = heapq.nlargest(dab_depth_and_length, node.children, key=lambda n: n.score 
-                                               if hasattr(n, "score") else -INFINITY)
-            else:
-                node.children = heapq.nsmallest(dab_depth_and_length, node.children, key=lambda n: n.score 
-                                                if hasattr(n, "score") else INFINITY)
+        for threshold, depth in pcutpairs:
+            for node in anytree.PreOrderIter(self.game_tree, filter_=lambda n: n.depth % 2 == 0,
+                                             maxlevel=self.fully_expanded - depth):
+
+                for child in node.children:
+                    if not hasattr(child, "score"):
+                        if node.name.side == BLACK:
+                            child.score = -INFINITY
+                        if node.name.side == WHITE:
+                            child.score = INFINITY
+
+                dab_depth_and_length = 2
+
+                if node.name.side == BLACK:
+                    fallback = heapq.nlargest(dab_depth_and_length, node.children, key=lambda n: n.score)
+                    sorted_children = sorted(node.children, key=lambda n: n.score)
+                    threshold = sorted_children[-1].score - threshold
+                    filter_func = lambda n: n.score > threshold
+                    sorted_children = filter(filter_func, sorted_children)
+                    node.children = sorted_children
+                else:
+                    fallback = heapq.nsmallest(dab_depth_and_length, node.children, key=lambda n: n.score)
+                    sorted_children = sorted(node.children, key=lambda n: n.score)
+                    threshold = sorted_children[0].score + threshold
+                    filter_func = lambda n: n.score < threshold
+                    sorted_children = filter(filter_func, sorted_children)
+                    node.children = sorted_children
+
+                if len(node.children) < dab_depth_and_length:
+                    node.children = fallback
+
+        for threshold, depth in ocutpairs:
+            for node in anytree.PreOrderIter(self.game_tree, filter_=lambda n: n.depth % 2 == 1,
+                                             maxlevel=self.fully_expanded - depth):
+
+                for child in node.children:
+                    if not hasattr(child, "score"):
+                        if node.name.side == BLACK:
+                            child.score = -INFINITY
+                        if node.name.side == WHITE:
+                            child.score = INFINITY
+
+                dab_depth_and_length = 2
+
+                if node.name.side == BLACK:
+                    fallback = heapq.nlargest(dab_depth_and_length, node.children, key=lambda n: n.score)
+                    sorted_children = sorted(node.children, key=lambda n: n.score)
+                    threshold = sorted_children[-1].score - threshold
+                    filter_func = lambda n: n.score > threshold
+                    sorted_children = filter(filter_func, sorted_children)
+                    node.children = sorted_children
+                else:
+                    fallback = heapq.nsmallest(dab_depth_and_length, node.children, key=lambda n: n.score)
+                    sorted_children = sorted(node.children, key=lambda n: n.score)
+                    threshold = sorted_children[0].score + threshold
+                    filter_func = lambda n: n.score < threshold
+                    sorted_children = filter(filter_func, sorted_children)
+                    node.children = sorted_children
+
+                if len(node.children) < dab_depth_and_length:
+                    node.children = fallback
 
     def expand(self, t=INFINITY):
         """

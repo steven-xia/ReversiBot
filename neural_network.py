@@ -5,6 +5,15 @@
 import numpy
 
 
+def compress(a, n):
+    new_array = []
+    length = len(a)
+    pool_size = length // n + (length % n != 0)
+    for i in range(0, length, pool_size):
+        new_array.append(numpy.mean(a[i: i + n]))
+    return new_array
+
+
 # Classes here...
 class NeuralNetwork:
     def __init__(self, input_layer_size=2, hidden_layer_sizes=(4,), output_layer_size=1):
@@ -105,8 +114,6 @@ class NeuralNetwork:
                                                        1 - dropout_percentage)[0]
                 layers[-1] *= dropout_matrix * (1.0 / (1 - dropout_percentage))
                 layers[-1] = numpy.nan_to_num(layers[-1])
-                # layers[-1] -= numpy.mean(layers[-1])
-                # layers[-1] /= numpy.std(layers[-1])
 
             layers.append(self.non_linearity(numpy.dot(layers[-1], self.weights_list[-1]), final_layer=True))
 
@@ -117,16 +124,11 @@ class NeuralNetwork:
             # temp2 = numpy.ones_like(temp1)
             # temp1[training_outputs < 0.5] = -1
             # temp2[layers[-1] < 0.5] = -1
-            # temp3 = temp1 * temp2
+            # temp3 = temp1 * temp2  # negative for incorrect advantage
 
             output_layer_error = training_outputs - layers[-1]  # First layer is special...
 
-            # temp = numpy.ones_like(output_layer_error)
-            # temp[output_layer_error < 0] = -1
-
-            # output_layer_error *= temp
-            # output_layer_error[temp3 < 0] **= 0.5
-            # output_layer_error *= temp
+            output_layer_error = (output_layer_error + 1) ** 2 - 1  # Yes, this can be simplified, I know.
 
             layers_deltas.insert(0, output_layer_error * self.non_linearity(layers[-1], final_layer=True))
             for layer_index in reversed(xrange(1, len(layers) - 1)):
@@ -145,7 +147,8 @@ class NeuralNetwork:
         if self.error is None:
             self.error = 0
         else:
-            self.error = 0.999 * self.error + 0.001 * average_error
+            # self.error = 0.999 * self.error + 0.001 * average_error
+            self.error = 0.99 * self.error + 0.01 * average_error
 
         return total_error / iterations
 
@@ -157,8 +160,6 @@ class NeuralNetwork:
             layers.append(numpy.nan_to_num(
                 self.non_linearity(numpy.dot(layers[-1], self.weights_list[weights_set_index]))
             ))
-            # layers[-1] -= numpy.mean(layers[-1])
-            # layers[-1] /= numpy.std(layers[-1])
 
         layers.append(self.non_linearity(numpy.dot(layers[-1], self.weights_list[-1]), final_layer=True))
         return layers[-1]

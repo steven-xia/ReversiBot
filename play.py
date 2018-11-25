@@ -47,18 +47,10 @@ SECOND_EVALUATOR = evaluator_nn.evaluate
 
 LEVEL = 0
 SPEED_FACTOR = 9 - LEVEL
-# MINIMUM_DEPTH = int(2 + LEVEL / 3)
-MINIMUM_DEPTH = 4
-# TIME = map(lambda x: math.ceil(((x / 20) * (x - 30) + 12) / (1 + SPEED_FACTOR)),
-#            range(65))  # + [9999] * 20
-# TIME = map(lambda x: x / 10.0, range(10, 0, -1)) + [0.1] * 42 + [9999] * 20
-# TIME = map(lambda x: x, TIME)
-# TIME = [0] * 52 + [9999] * 20
-TIME = [0.0] + [1.6, 1.6]* 100
-# TIME = [0, 0.5] * 26 + [9999] * 20
-# MINIMUM_DEPTH2 = int(1 + LEVEL / 3)
-# TIME2 = map(lambda x: math.ceil(((x / 20) * (x - 30) + 12) / (1 + 2*SPEED_FACTOR)),
-#             range(651))
+MINIMUM_DEPTH = 2
+time_func = lambda t: ((t - 13)/10.5)**3 - ((t - 20)/3.5)**2 + 60
+TIME = map(time_func, range(100))
+TIME = map(lambda n: n / 2, TIME)
 
 MINIMUM = -1
 MAXIMUM = 1
@@ -140,12 +132,12 @@ def computer_move_timed(engine):
 
         if turn % 2 == 0:
             TWO_AVERAGE = SMOOTH_FACTOR * TWO_AVERAGE + (1 - SMOOTH_FACTOR) * score
-            TWO_AVERAGE = min(max(TWO_AVERAGE, -9.5), 9.5)
+            TWO_AVERAGE = min(max(TWO_AVERAGE, -4.0), 4.0)
             pylab.scatter(turn, TWO_AVERAGE, c="r")
             score = TWO_AVERAGE
         else:
             ONE_AVERAGE = SMOOTH_FACTOR * ONE_AVERAGE + (1 - SMOOTH_FACTOR) * score
-            ONE_AVERAGE = min(max(ONE_AVERAGE, -9.5), 9.5)
+            ONE_AVERAGE = min(max(ONE_AVERAGE, -4.0), 4.0)
             pylab.scatter(turn, round(ONE_AVERAGE, 1), c="b")
             score = ONE_AVERAGE
 

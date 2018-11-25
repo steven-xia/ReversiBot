@@ -70,18 +70,7 @@ try:
         elif attribute == "searcher" and value[:-1] == "test":
             import searcher_test as searcher
             import searcher as old_searcher
-            levels = {
-                0: (0.0, 1),
-                1: (0.1, 1),
-                2: (0.4, 2),
-                3: (0.9, 3),
-                4: (1.6, 4),
-                5: (2.5, 5),
-                6: (3.6, 6), 
-                7: (4.9, 7), 
-                8: (6.4, 8), 
-                9: (8.1, 9),
-            }
+            levels = {n: (n**2.911 / 10, 1) for n in range(10)}
             LEVEL = int(value[-1])
 except:
     PLAYER = "black"

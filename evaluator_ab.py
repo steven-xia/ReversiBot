@@ -8,7 +8,7 @@ copied from an older program.
 EMPTY = 2
 
 MOBILITY_FACTOR = 10
-FRONTIER_FACTOR = 2
+FRONTIER_FACTOR = 5
 LESS_PIECE_FACTOR = 0.01
 
 piece_scores = [
