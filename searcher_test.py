@@ -75,12 +75,15 @@ class Searcher:
             new_board.move(move, refresh_moves=False)
             anytree.Node(new_board, parent=node, move=move)
 
-    def cut(self, pcutpairs=[[7.09, 3], [4.37, 4], [2.71, 5]], \
-            ocutpairs=[[8.22, 3], [5.08, 4], [3.14, 5]]):
+    def cut(self):
+        pcutpairs = [[2.71 * 1.618**(5 - n), n] for n in range(3, 16)]
+        ocutpairs = [[3.14 * 1.618**(5 - n), n] for n in range(3, 16)]
         cutless = 32
         if self.pieces > cutless:
             pcutpairs = [[a[0] * self.pieces - cutless, a[1]] for a in pcutpairs]
             ocutpairs = [[a[0] * self.pieces - cutless, a[1]] for a in ocutpairs]
+
+        dab_depth_and_length = 2
 
         for threshold, depth in pcutpairs:
             for node in anytree.PreOrderIter(self.game_tree, filter_=lambda n: n.depth % 2 == 0,
@@ -92,8 +95,6 @@ class Searcher:
                             child.score = -INFINITY
                         if node.name.side == WHITE:
                             child.score = INFINITY
-
-                dab_depth_and_length = 2
 
                 if node.name.side == BLACK:
                     fallback = heapq.nlargest(dab_depth_and_length, node.children, key=lambda n: n.score)
@@ -123,8 +124,6 @@ class Searcher:
                             child.score = -INFINITY
                         if node.name.side == WHITE:
                             child.score = INFINITY
-
-                dab_depth_and_length = 2
 
                 if node.name.side == BLACK:
                     fallback = heapq.nlargest(dab_depth_and_length, node.children, key=lambda n: n.score)

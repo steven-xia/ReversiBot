@@ -192,7 +192,7 @@ def update(pieces):
         information = "{} ply :: {} nodes".format(bot.fully_expanded,
                                                   bot.number_nodes())
         information_label.config(text=information)
-        
+ 
         evaluation = "Evaluation: {}".format(round(bot.game_tree.score / 100, 2))
         evaluation_label.config(text=evaluation)
 
