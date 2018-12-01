@@ -1,6 +1,7 @@
 # ReversiBot
 
-Currently, this project is only compatible with Linux. Apologies to anyone else who is interested.
+Currently, this project is only compatible with Linux. Apologies to anyone else who is interested 
+(though you can probably make it work since Python is cross platform).
 
 This is an attempt to implement simple Artificial Neural Networks to play the game of Reversi (also called Othello). 
 Please notify me is you find any of my plethora of mistakes... 
@@ -15,19 +16,23 @@ If you don't know how to play Reversi, look [here](https://en.wikipedia.org/wiki
 ### Dependencies
 
 This project is built on Python 2.7. Please install Python before continuing.
+```bash
+# on Debian/Ubuntu
+sudo apt-get install python
+```
 
 A few additional modules were used to build this project (all under python):
   - anytree
+  - Cython
   - numpy
   - matplotlib (optional)
-  - Cython (optional for ~2x speedup)
 
 Installation should be easy if you have python installed:
 ```bash
 pip install anytree
+pip install cython
 pip install numpy
 pip install matplotlib
-pip install cython
 ```
 
 ### Installing
@@ -38,25 +43,21 @@ Clone the directory:
 git clone https://github.com/steven-xia/ReversiBot
 ```
 
+Then compile the necessary components:
+```bash
+python setup.py build_ext --inplace
+```
+
 If all the dependencies are met, you can easily run with (inside the folder). 
 
 ```bash
 python gui.py
 ```
 
-If you want to train, you need to unzip the training data file: 'training_data.txt':
+If you want to train, you need to unzip the training data file: 'training_data.zip':
 ```
-unzip training_data.txt
+unzip training_data.zip
 ```
-
-To compile with Cython, do:
-
-```bash
-python setup.py build_ext --inplace
-```
-
-and run it as you would normally. 
-
 ### Other notes
 
 Data collection is done with the following command. The number of threads can be set in `edax_wrapper.py` under the 
