@@ -50,7 +50,7 @@ SPEED_FACTOR = 9 - LEVEL
 MINIMUM_DEPTH = 2
 time_func = lambda t: ((t - 13)/10.5)**3 - ((t - 20)/3.5)**2 + 60
 TIME = map(time_func, range(100))
-TIME = map(lambda n: n / 2, TIME)
+TIME = map(lambda n: n / 6, TIME)
 
 MINIMUM = -1
 MAXIMUM = 1

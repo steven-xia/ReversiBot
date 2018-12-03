@@ -17,7 +17,6 @@ brain = cPickle.load(f)
 f.close()
 
 NOISE_FACTOR = 0.00
-LOOK_NICE = True
 
 
 def convert_to_input(board):
@@ -40,41 +39,30 @@ def convert_to_input(board):
     return converted
 
 
-def draw_function(t):
-    return t / 50.0
-
-
 def evaluate(board):
     if board.is_over():
         score = board.score()
         return 100 * (score[0] - score[1])
 
-    if LOOK_NICE:
-        pieces = board.pieces
-        empty_places = 0
-        ascore = 0
-        for row_index in xrange(len(pieces)):
-            for column_index in xrange(len(pieces[row_index])):
-                if pieces[row_index][column_index] == 2:
-                    empty_places += 1
-                elif pieces[row_index][column_index] == 0:
-                    ascore += 1
-                else:
-                    ascore -= 1
-
-        look_nice_factor = draw_function(60 - empty_places)
-        count_pieces = 8.0
-        if empty_places > (64 - count_pieces):
-            ascore *= (empty_places - count_pieces) / count_pieces
-        else:
-            ascore = 0
+    pieces = board.pieces
+    empty_places = 0
+    ascore = 0
+    for row_index in xrange(len(pieces)):
+        for column_index in xrange(len(pieces[row_index])):
+            if pieces[row_index][column_index] == 2:
+                empty_places += 1
+            elif pieces[row_index][column_index] == 0:
+                ascore += 1
+            else:
+                ascore -= 1
+    count_pieces = 8.0
+    if empty_places > count_pieces:
+        ascore *= (empty_places - count_pieces) / count_pieces
     else:
-        look_nice_factor = 1
         ascore = 0
 
     inputs = numpy.array([convert_to_input(board)])
     output = brain.think(inputs)[0][0]
-    if LOOK_NICE:
-        output = -100 * numpy.log(1 / output - 1 + 10 ** -8)  # Convert to pieces.
+    output = -100 * numpy.log(1 / output - 1 + 10 ** -8)  # Convert to pieces.
     noise = 1 + (NOISE_FACTOR) * (2 * random.random() - 1)
-    return noise * look_nice_factor * output  # + ascore
+    return noise * output + ascore

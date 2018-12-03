@@ -76,12 +76,14 @@ class Searcher:
             anytree.Node(new_board, parent=node, move=move)
 
     def cut(self):
-        pcutpairs = [[2.71 * 1.618**(5 - n), n] for n in range(3, 16)]
-        ocutpairs = [[3.14 * 1.618**(5 - n), n] for n in range(3, 16)]
-        cutless = 32
+        pcutpairs = [[2.71 * 1.618**(5 - n), n] for n in range(5, 16)]
+        ocutpairs = [[3.14 * 1.618**(5 - n), n] for n in range(5, 16)]
+
+        cutless = 16.0
         if self.pieces > cutless:
-            pcutpairs = [[a[0] * self.pieces - cutless, a[1]] for a in pcutpairs]
-            ocutpairs = [[a[0] * self.pieces - cutless, a[1]] for a in ocutpairs]
+            cutless_factor = (self.pieces - cutless) / 4
+            pcutpairs = [[a[0] * cutless_factor, a[1]] for a in pcutpairs]
+            ocutpairs = [[a[0] * cutless_factor - cutless, a[1]] for a in ocutpairs]
 
         dab_depth_and_length = 2
 
