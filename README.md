@@ -1,4 +1,4 @@
-# ReversiBot  (DISCONTINUED)
+# reversi-bot
 
 Currently, this project is only compatible with Linux. Apologies to anyone else who is interested 
 (though you can probably make it work since Python is cross platform).
